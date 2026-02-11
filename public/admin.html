@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Doğa ve Balık</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+    <!-- Üst Bar -->
+    <header class="admin-topbar">
+        <div class="admin-topbar-left">
+            <a href="/" class="admin-logo">
+                <img src="/assets/logo.jpeg" alt="Logo">
+                <span>Doğa ve Balık</span>
+            </a>
+            <span class="admin-badge">Panel</span>
+        </div>
+        <div class="admin-topbar-right">
+            <span class="admin-user-name" id="adminUserName"></span>
+            <button class="admin-logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Çıkış Yap
+            </button>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <!-- Sol Menü -->
+        <aside class="admin-sidebar">
+            <nav>
+                <a class="admin-nav-item active" data-tab="products" onclick="switchAdminTab('products', this)">
+                    <i class="fas fa-box"></i> Ürünler
+                </a>
+                <a class="admin-nav-item" data-tab="categories" onclick="switchAdminTab('categories', this)">
+                    <i class="fas fa-layer-group"></i> Kategoriler
+                </a>
+                <a class="admin-nav-item" data-tab="popular" onclick="switchAdminTab('popular', this)">
+                    <i class="fas fa-fire"></i> Popüler Ürünler
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Ana İçerik -->
+        <main class="admin-main">
+
+            <!-- ÜRÜNLER TAB -->
+            <div class="admin-tab active" id="tabProducts">
+                <div class="admin-section-header">
+                    <h2><i class="fas fa-box"></i> Ürün Yönetimi</h2>
+                    <button class="admin-add-btn" onclick="openProductModal()">
+                        <i class="fas fa-plus"></i> Yeni Ürün
+                    </button>
+                </div>
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Görsel</th>
+                                <th>Ürün Adı</th>
+                                <th>Kategori</th>
+                                <th>Fiyat</th>
+                                <th>Stok</th>
+                                <th>Durum</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- KATEGORİLER TAB -->
+            <div class="admin-tab" id="tabCategories">
+                <div class="admin-section-header">
+                    <h2><i class="fas fa-layer-group"></i> Kategori Yönetimi</h2>
+                    <button class="admin-add-btn" onclick="openCategoryModal()">
+                        <i class="fas fa-plus"></i> Yeni Kategori
+                    </button>
+                </div>
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Kategori Adı</th>
+                                <th>Üst Kategori</th>
+                                <th>Durum</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="categoriesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- POPÜLER ÜRÜNLER TAB -->
+            <div class="admin-tab" id="tabPopular">
+                <div class="admin-section-header">
+                    <h2><i class="fas fa-fire"></i> Popüler Ürün Seçimi</h2>
+                    <p class="admin-section-desc">Popüler olarak işaretlenen ürünler, ana sayfada hero bölümünde gösterilir.</p>
+                </div>
+                <div class="popular-grid" id="popularGrid">
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ÜRÜN MODAL -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="productModalTitle">Yeni Ürün Ekle</h3>
+                <button class="modal-close" onclick="closeProductModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="productForm" onsubmit="handleProductSubmit(event)">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Ürün Adı *</label>
+                            <input type="text" class="form-input" id="pName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Kategori *</label>
+                            <select class="form-input" id="pCategory" required>
+                                <option value="">Seçiniz</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Açıklama</label>
+                        <textarea class="form-input" id="pDesc" rows="3"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Fiyat (₺) *</label>
+                            <input type="number" step="0.01" class="form-input" id="pPrice" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Eski Fiyat (₺)</label>
+                            <input type="number" step="0.01" class="form-input" id="pOldPrice">
+                        </div>
+                        <div class="form-group">
+                            <label>Stok</label>
+                            <input type="number" class="form-input" id="pStock" value="0">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rozet</label>
+                            <input type="text" class="form-input" id="pBadge" placeholder="YENİ, %20 İNDİRİM vb.">
+                        </div>
+                        <div class="form-group">
+                            <label>Rozet Rengi</label>
+                            <input type="color" class="form-input form-color" id="pBadgeColor" value="#e53e3e">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Puan</label>
+                            <input type="number" step="0.1" min="0" max="5" class="form-input" id="pRating" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Değerlendirme Sayısı</label>
+                            <input type="number" class="form-input" id="pReviewCount" value="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Ürün Görseli</label>
+                        <input type="file" class="form-input" id="pImage" accept="image/*">
+                        <div class="current-image" id="pCurrentImage" style="display:none;">
+                            <img id="pCurrentImagePreview" src="" alt="Mevcut">
+                            <span>Mevcut görsel</span>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="pFeatured"> Öne Çıkan
+                        </label>
+                        <label class="form-checkbox">
+                            <input type="checkbox" id="pPopular"> Popüler
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeProductModal()">İptal</button>
+                    <button type="submit" class="btn-save" id="productSaveBtn">Kaydet</button>
+                    <input type="hidden" id="pEditId" value="">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- KATEGORİ MODAL -->
+    <div class="modal-overlay" id="categoryModal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 id="categoryModalTitle">Yeni Kategori Ekle</h3>
+                <button class="modal-close" onclick="closeCategoryModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="categoryForm" onsubmit="handleCategorySubmit(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Kategori Adı *</label>
+                        <input type="text" class="form-input" id="cName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Üst Kategori</label>
+                        <select class="form-input" id="cParent">
+                            <option value="">Ana Kategori</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>İkon</label>
+                        <select class="form-input" id="cIcon">
+                            <option value="tent">⛺ Çadır</option>
+                            <option value="crosshair">🎯 Hedef</option>
+                            <option value="percent">💰 İndirim</option>
+                            <option value="book">📖 Blog</option>
+                            <option value="flame">🔥 Ateş</option>
+                            <option value="armchair">🪑 Sandalye</option>
+                            <option value="lightbulb">💡 Lamba</option>
+                            <option value="fish">🐟 Balık</option>
+                            <option value="knife">🔪 Bıçak</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeCategoryModal()">İptal</button>
+                    <button type="submit" class="btn-save" id="categorySaveBtn">Kaydet</button>
+                    <input type="hidden" id="cEditId" value="">
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="admin-toast" id="adminToast">
+        <i class="fas fa-check-circle"></i>
+        <span id="adminToastMsg"></span>
+    </div>
+
+    <script src="js/admin.js"></script>
+</body>
+</html>

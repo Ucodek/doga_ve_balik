@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ürün Detay - Doğa ve Balık</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-main: #f5f6f8;
+            --bg-card: #ffffff;
+            --text-primary: #1a202c;
+            --text-secondary: #718096;
+            --text-light: #a0aec0;
+            --accent-green: #38a169;
+            --accent-green-light: #48bb78;
+            --accent-green-dark: #276749;
+            --accent-red: #e53e3e;
+            --border-color: #e2e8f0;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --radius-xl: 20px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+        }
+
+        /* ===== TOPBAR ===== */
+        .topbar {
+            background: white;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0 32px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .topbar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: var(--text-primary);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .topbar-logo img {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-cart-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .topbar-cart-btn:hover {
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .topbar-user-area {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .topbar-login-btn {
+            padding: 9px 18px;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .topbar-login-btn:hover {
+            background: var(--accent-green-dark);
+        }
+
+        /* ===== BREADCRUMB ===== */
+        .breadcrumb {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px 32px;
+        }
+
+        .breadcrumb a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+
+        .breadcrumb a:hover { color: var(--accent-green); }
+        .breadcrumb span { color: var(--text-light); font-size: 13px; margin: 0 8px; }
+        .breadcrumb .current { color: var(--text-primary); font-weight: 500; }
+
+        /* ===== PRODUCT DETAIL ===== */
+        .product-detail {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px 40px;
+        }
+
+        .product-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            background: white;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .product-image-section {
+            background: #f7fafc;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .product-image-section img {
+            width: 100%;
+            max-height: 450px;
+            object-fit: contain;
+            border-radius: var(--radius-md);
+        }
+
+        .product-detail-badge {
+            position: absolute;
+            top: 24px;
+            left: 24px;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+
+        .product-info-section {
+            padding: 40px 40px 40px 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-category-tag {
+            display: inline-block;
+            background: #f0faf0;
+            color: var(--accent-green);
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            width: fit-content;
+        }
+
+        .product-detail-name {
+            font-size: 28px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+
+        .product-detail-rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .rating-stars .star { color: #f6c23e; font-size: 16px; }
+        .rating-stars .star.empty { color: #e2e8f0; }
+
+        .rating-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .rating-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .product-detail-desc {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .product-price-section {
+            display: flex;
+            align-items: baseline;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .product-price-lg {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--text-primary);
+        }
+
+        .product-price-lg .currency { color: var(--accent-green); font-size: 28px; }
+
+        .product-old-price-lg {
+            font-size: 20px;
+            color: var(--text-light);
+            text-decoration: line-through;
+        }
+
+        .product-discount-tag {
+            background: #fff5f5;
+            color: var(--accent-red);
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .product-stock-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 28px;
+            font-size: 14px;
+        }
+
+        .stock-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .stock-dot.in-stock { background: var(--accent-green); }
+        .stock-dot.low-stock { background: #dd6b20; }
+        .stock-dot.out-of-stock { background: var(--accent-red); }
+
+        .product-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        .btn-add-cart {
+            flex: 1;
+            padding: 14px 28px;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-add-cart:hover {
+            background: var(--accent-green-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(56, 161, 105, 0.4);
+        }
+
+        .btn-favorite {
+            width: 52px;
+            height: 52px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--text-light);
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-favorite:hover {
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        /* ===== REVIEWS SECTION ===== */
+        .reviews-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 32px 60px;
+        }
+
+        .reviews-container {
+            background: white;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .reviews-header {
+            padding: 28px 32px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .reviews-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .reviews-header h2 i {
+            color: var(--accent-green);
+        }
+
+        .reviews-body {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+        }
+
+        /* Stats sidebar */
+        .reviews-stats {
+            padding: 28px 32px;
+            border-right: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .stats-average {
+            font-size: 56px;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stats-stars {
+            display: flex;
+            justify-content: center;
+            gap: 4px;
+            margin: 10px 0;
+        }
+
+        .stats-stars .star { color: #f6c23e; font-size: 20px; }
+        .stats-stars .star.empty { color: #e2e8f0; }
+
+        .stats-total {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+        }
+
+        .stats-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+
+        .stats-bar-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 14px;
+        }
+
+        .stats-bar-track {
+            flex: 1;
+            height: 8px;
+            background: #edf2f7;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .stats-bar-fill {
+            height: 100%;
+            background: #f6c23e;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .stats-bar-count {
+            font-size: 12px;
+            color: var(--text-light);
+            min-width: 20px;
+            text-align: right;
+        }
+
+        /* Reviews list */
+        .reviews-list-wrapper {
+            padding: 28px 32px;
+        }
+
+        /* Write review form */
+        .review-form-card {
+            background: #f7fafc;
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .review-form-card h4 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .review-login-prompt {
+            text-align: center;
+            padding: 24px;
+            background: #f7fafc;
+            border-radius: var(--radius-md);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-color);
+        }
+
+        .review-login-prompt p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .review-login-prompt a {
+            color: var(--accent-green);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .review-login-prompt a:hover {
+            text-decoration: underline;
+        }
+
+        .star-rating-input {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 14px;
+        }
+
+        .star-rating-input .star-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: color 0.15s ease, transform 0.15s ease;
+            padding: 0;
+        }
+
+        .star-rating-input .star-btn:hover { transform: scale(1.15); }
+        .star-rating-input .star-btn.active { color: #f6c23e; }
+
+        .review-textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 14px;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 14px;
+        }
+
+        .review-textarea:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.1);
+        }
+
+        .review-submit-btn {
+            padding: 10px 24px;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-submit-btn:hover { background: var(--accent-green-dark); }
+        .review-submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .review-error, .review-success {
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 14px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-error {
+            background: #fed7d7;
+            color: #c53030;
+        }
+
+        .review-success {
+            background: #c6f6d5;
+            color: #276749;
+        }
+
+        .review-error.show, .review-success.show {
+            display: flex;
+        }
+
+        /* Review items */
+        .review-item {
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .review-item:last-child { border-bottom: none; }
+
+        .review-item-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .review-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .review-user-info {
+            flex: 1;
+        }
+
+        .review-user-name {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .review-date {
+            font-size: 12px;
+            color: var(--text-light);
+        }
+
+        .review-item-stars {
+            display: flex;
+            gap: 2px;
+        }
+
+        .review-item-stars .star { font-size: 13px; color: #f6c23e; }
+        .review-item-stars .star.empty { color: #e2e8f0; }
+
+        .review-comment {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-left: 52px;
+        }
+
+        .review-delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-light);
+            font-size: 12px;
+            cursor: pointer;
+            margin-left: auto;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .review-delete-btn:hover {
+            color: var(--accent-red);
+            background: #fff5f5;
+        }
+
+        .no-reviews {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-light);
+        }
+
+        .no-reviews i {
+            font-size: 40px;
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .no-reviews p {
+            font-size: 15px;
+        }
+
+        /* ===== LOADING ===== */
+        .page-loading {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-light);
+        }
+
+        .page-loading i {
+            font-size: 40px;
+            margin-bottom: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a202c;
+            color: white;
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast .toast-icon { color: var(--accent-green); }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .product-detail-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .product-info-section {
+                padding: 32px;
+            }
+
+            .reviews-body {
+                grid-template-columns: 1fr;
+            }
+
+            .reviews-stats {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .topbar {
+                padding: 0 16px;
+                height: 56px;
+            }
+
+            .topbar-logo span {
+                display: none;
+            }
+
+            .breadcrumb {
+                padding: 12px 16px;
+            }
+
+            .product-detail {
+                padding: 0 16px 32px;
+            }
+
+            .product-detail-grid {
+                border-radius: var(--radius-md);
+            }
+
+            .product-image-section {
+                padding: 24px;
+            }
+
+            .product-image-section img {
+                max-height: 300px;
+            }
+
+            .product-info-section {
+                padding: 24px;
+            }
+
+            .product-detail-name {
+                font-size: 22px;
+            }
+
+            .product-price-lg {
+                font-size: 28px;
+            }
+
+            .product-price-lg .currency {
+                font-size: 22px;
+            }
+
+            .reviews-section {
+                padding: 0 16px 40px;
+            }
+
+            .reviews-container {
+                border-radius: var(--radius-md);
+            }
+
+            .reviews-header {
+                padding: 20px 20px;
+            }
+
+            .reviews-header h2 {
+                font-size: 18px;
+            }
+
+            .reviews-stats {
+                padding: 20px;
+            }
+
+            .reviews-list-wrapper {
+                padding: 20px;
+            }
+
+            .review-form-card {
+                padding: 18px;
+            }
+
+            .review-comment {
+                margin-left: 0;
+                margin-top: 8px;
+            }
+
+            .toast {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .product-detail {
+                padding: 0 12px 24px;
+            }
+
+            .product-image-section {
+                padding: 16px;
+            }
+
+            .product-info-section {
+                padding: 20px 16px;
+            }
+
+            .product-detail-name {
+                font-size: 20px;
+            }
+
+            .product-price-lg {
+                font-size: 24px;
+            }
+
+            .product-actions {
+                flex-direction: column;
+            }
+
+            .btn-favorite {
+                width: 100%;
+            }
+
+            .reviews-section {
+                padding: 0 12px 32px;
+            }
+
+            .stats-average {
+                font-size: 42px;
+            }
+
+            .star-rating-input .star-btn {
+                font-size: 24px;
+            }
+
+            .back-btn span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Üst Bar -->
+    <header class="topbar">
+        <div class="topbar-left">
+            <a href="/" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span>Geri Dön</span>
+            </a>
+            <a href="/" class="topbar-logo">
+                <img src="/assets/logo.png" alt="Logo">
+                <span>Doğa ve Balık</span>
+            </a>
+        </div>
+        <div class="topbar-right">
+            <button class="topbar-cart-btn" onclick="window.location.href='/'">
+                <i class="fas fa-shopping-bag"></i>
+            </button>
+            <div class="topbar-user-area" id="topbarUserArea"></div>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" id="breadcrumb">
+        <a href="/">Ana Sayfa</a>
+        <span>/</span>
+        <span class="current" id="breadcrumbProduct">Ürün</span>
+    </nav>
+
+    <!-- Ürün Detay -->
+    <section class="product-detail" id="productDetail">
+        <div class="page-loading" id="pageLoading">
+            <i class="fas fa-spinner"></i>
+            <p>Ürün yükleniyor...</p>
+        </div>
+    </section>
+
+    <!-- Yorumlar Bölümü -->
+    <section class="reviews-section" id="reviewsSection" style="display: none;">
+    </section>
+
+    <!-- Toast -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle toast-icon"></i>
+        <span id="toastText"></span>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+        let currentProduct = null;
+        let currentUser = null;
+        let selectedRating = 0;
+
+        // Sayfa yüklendiğinde
+        document.addEventListener('DOMContentLoaded', async () => {
+            renderTopbarUser();
+            const productId = getProductId();
+            if (productId) {
+                await loadProduct(productId);
+            } else {
+                document.getElementById('pageLoading').innerHTML = `
+                    <i class="fas fa-exclamation-triangle" style="animation:none; color: #dd6b20;"></i>
+                    <p>Ürün bulunamadı</p>
+                `;
+            }
+        });
+
+        function getProductId() {
+            const parts = window.location.pathname.split('/');
+            return parts[parts.length - 1];
+        }
+
+        // Kullanıcı alanı
+        function renderTopbarUser() {
+            const area = document.getElementById('topbarUserArea');
+            const token = localStorage.getItem('token');
+            const user = JSON.parse(localStorage.getItem('user') || 'null');
+            currentUser = user && token ? user : null;
+
+            if (currentUser) {
+                area.innerHTML = `
+                    <span style="font-size:14px; font-weight:500; color: var(--text-secondary);">${currentUser.fullName}</span>
+                `;
+            } else {
+                area.innerHTML = `
+                    <a href="/login" class="topbar-login-btn"><i class="fas fa-user"></i> Giriş Yap</a>
+                `;
+            }
+        }
+
+        // Ürün yükle
+        async function loadProduct(id) {
+            try {
+                const res = await fetch(`${API_BASE}/products/${id}`);
+                const json = await res.json();
+
+                if (json.success) {
+                    currentProduct = json.data;
+                    document.title = `${currentProduct.name} - Doğa ve Balık`;
+                    renderProduct(currentProduct);
+                    await loadReviews(id);
+                } else {
+                    document.getElementById('pageLoading').innerHTML = `
+                        <i class="fas fa-exclamation-triangle" style="animation:none; color: #dd6b20;"></i>
+                        <p>Ürün bulunamadı</p>
+                    `;
+                }
+            } catch (error) {
+                console.error('Ürün yüklenemedi:', error);
+                document.getElementById('pageLoading').innerHTML = `
+                    <i class="fas fa-exclamation-circle" style="animation:none; color: var(--accent-red);"></i>
+                    <p>Bir hata oluştu</p>
+                `;
+            }
+        }
+
+        // Ürünü render et
+        function renderProduct(product) {
+            // Breadcrumb
+            if (product.category) {
+                document.getElementById('breadcrumb').innerHTML = `
+                    <a href="/">Ana Sayfa</a>
+                    <span>/</span>
+                    <a href="/" onclick="return false;">${product.category.name}</a>
+                    <span>/</span>
+                    <span class="current">${product.name}</span>
+                `;
+            } else {
+                document.getElementById('breadcrumbProduct').textContent = product.name;
+            }
+
+            const badgeHtml = product.badge
+                ? `<span class="product-detail-badge" style="background: ${product.badgeColor || '#e53e3e'}">${product.badge}</span>`
+                : '';
+
+            const oldPriceHtml = product.oldPrice
+                ? `<span class="product-old-price-lg">${formatPrice(product.oldPrice)}₺</span>`
+                : '';
+
+            const discount = product.oldPrice
+                ? Math.round((1 - product.price / product.oldPrice) * 100)
+                : 0;
+
+            const discountHtml = discount > 0
+                ? `<span class="product-discount-tag">%${discount} İndirim</span>`
+                : '';
+
+            let stockClass = 'in-stock';
+            let stockText = 'Stokta var';
+            if (product.stock === 0) {
+                stockClass = 'out-of-stock';
+                stockText = 'Stokta yok';
+            } else if (product.stock <= 5) {
+                stockClass = 'low-stock';
+                stockText = `Son ${product.stock} adet`;
+            }
+
+            const starsHtml = renderStars(product.rating || 0);
+
+            document.getElementById('productDetail').innerHTML = `
+                <div class="product-detail-grid">
+                    <div class="product-image-section">
+                        <img src="${product.image || 'https://via.placeholder.com/600x400?text=Ürün'}" 
+                             alt="${product.name}"
+                             onerror="this.src='https://via.placeholder.com/600x400?text=Görsel+Yok'">
+                        ${badgeHtml}
+                    </div>
+                    <div class="product-info-section">
+                        ${product.category ? `<span class="product-category-tag">${product.category.name}</span>` : ''}
+                        <h1 class="product-detail-name">${product.name}</h1>
+                        <div class="product-detail-rating">
+                            <div class="rating-stars">${starsHtml}</div>
+                            <span class="rating-value">${product.rating || 0}</span>
+                            <span class="rating-count">(${product.reviewCount || 0} değerlendirme)</span>
+                        </div>
+                        <p class="product-detail-desc">${product.description || 'Bu ürün için henüz açıklama eklenmemiş.'}</p>
+                        <div class="product-price-section">
+                            <span class="product-price-lg">${formatPrice(product.price)}<span class="currency">₺</span></span>
+                            ${oldPriceHtml}
+                            ${discountHtml}
+                        </div>
+                        <div class="product-stock-info">
+                            <span class="stock-dot ${stockClass}"></span>
+                            <span>${stockText}</span>
+                        </div>
+                        <div class="product-actions">
+                            <button class="btn-add-cart" onclick="addToCart()">
+                                <i class="fas fa-cart-plus"></i>
+                                Sepete Ekle
+                            </button>
+                            <button class="btn-favorite">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Yorumları yükle
+        async function loadReviews(productId) {
+            try {
+                const res = await fetch(`${API_BASE}/reviews/${productId}`);
+                const json = await res.json();
+
+                if (json.success) {
+                    renderReviews(json.data, json.stats);
+                    document.getElementById('reviewsSection').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Yorumlar yüklenemedi:', error);
+            }
+        }
+
+        function renderReviews(reviews, stats) {
+            const section = document.getElementById('reviewsSection');
+
+            // Form bölümü
+            let formHtml = '';
+            if (currentUser) {
+                formHtml = `
+                    <div class="review-form-card" id="reviewFormCard">
+                        <h4>Değerlendirme Yap</h4>
+                        <div class="review-error" id="reviewError">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span id="reviewErrorText"></span>
+                        </div>
+                        <div class="review-success" id="reviewSuccess">
+                            <i class="fas fa-check-circle"></i>
+                            <span>Yorumunuz başarıyla eklendi!</span>
+                        </div>
+                        <div class="star-rating-input" id="starRatingInput">
+                            ${[1,2,3,4,5].map(i => `
+                                <button class="star-btn" data-rating="${i}" onclick="setRating(${i})">
+                                    <i class="fas fa-star"></i>
+                                </button>
+                            `).join('')}
+                        </div>
+                        <textarea class="review-textarea" id="reviewComment" placeholder="Ürün hakkında düşüncelerinizi paylaşın..."></textarea>
+                        <button class="review-submit-btn" id="reviewSubmitBtn" onclick="submitReview()">
+                            <i class="fas fa-paper-plane"></i>
+                            Yorumu Gönder
+                        </button>
+                    </div>
+                `;
+            } else {
+                formHtml = `
+                    <div class="review-login-prompt">
+                        <p>Yorum yapabilmek için giriş yapmanız gerekiyor.</p>
+                        <a href="/login">Giriş Yap <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                `;
+            }
+
+            // Yorum listesi
+            let reviewsHtml = '';
+            if (reviews.length === 0) {
+                reviewsHtml = `
+                    <div class="no-reviews">
+                        <i class="fas fa-comment-dots"></i>
+                        <p>Henüz yorum yapılmamış. İlk yorumu siz yapın!</p>
+                    </div>
+                `;
+            } else {
+                reviewsHtml = reviews.map(review => {
+                    const initial = review.user ? review.user.fullName.charAt(0).toUpperCase() : '?';
+                    const name = review.user ? review.user.fullName : 'Anonim';
+                    const date = new Date(review.createdAt).toLocaleDateString('tr-TR', {
+                        year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    const canDelete = currentUser && (currentUser.id === review.userId || currentUser.role === 'admin');
+                    const deleteBtn = canDelete
+                        ? `<button class="review-delete-btn" onclick="deleteReview(${review.id})"><i class="fas fa-trash"></i> Sil</button>`
+                        : '';
+
+                    return `
+                        <div class="review-item" id="review-${review.id}">
+                            <div class="review-item-header">
+                                <div class="review-avatar">${initial}</div>
+                                <div class="review-user-info">
+                                    <div class="review-user-name">${name}</div>
+                                    <div class="review-date">${date}</div>
+                                </div>
+                                <div class="review-item-stars">
+                                    ${renderStars(review.rating, 'small')}
+                                </div>
+                                ${deleteBtn}
+                            </div>
+                            <p class="review-comment">${escapeHtml(review.comment)}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            // Stats bölümü
+            const statsStarsHtml = renderStars(stats.average);
+            const maxCount = Math.max(...Object.values(stats.distribution), 1);
+
+            section.innerHTML = `
+                <div class="reviews-container">
+                    <div class="reviews-header">
+                        <h2><i class="fas fa-star"></i> Değerlendirmeler</h2>
+                    </div>
+                    <div class="reviews-body">
+                        <div class="reviews-stats">
+                            <div class="stats-average">${stats.average}</div>
+                            <div class="stats-stars">${statsStarsHtml}</div>
+                            <div class="stats-total">${stats.total} değerlendirme</div>
+                            ${[5,4,3,2,1].map(n => `
+                                <div class="stats-bar">
+                                    <span class="stats-bar-label">${n}</span>
+                                    <div class="stats-bar-track">
+                                        <div class="stats-bar-fill" style="width: ${stats.total > 0 ? (stats.distribution[n] / stats.total * 100) : 0}%"></div>
+                                    </div>
+                                    <span class="stats-bar-count">${stats.distribution[n]}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="reviews-list-wrapper">
+                            ${formHtml}
+                            ${reviewsHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Yıldız seçimi
+        function setRating(rating) {
+            selectedRating = rating;
+            const buttons = document.querySelectorAll('#starRatingInput .star-btn');
+            buttons.forEach(btn => {
+                const r = parseInt(btn.dataset.rating);
+                btn.classList.toggle('active', r <= rating);
+            });
+        }
+
+        // Yorum gönder
+        async function submitReview() {
+            const comment = document.getElementById('reviewComment').value.trim();
+            const errorEl = document.getElementById('reviewError');
+            const errorText = document.getElementById('reviewErrorText');
+            const successEl = document.getElementById('reviewSuccess');
+            const submitBtn = document.getElementById('reviewSubmitBtn');
+
+            // Reset
+            errorEl.classList.remove('show');
+            successEl.classList.remove('show');
+
+            if (selectedRating === 0) {
+                errorText.textContent = 'Lütfen bir puan seçin';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            if (!comment) {
+                errorText.textContent = 'Lütfen bir yorum yazın';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
+
+            try {
+                const res = await fetch(`${API_BASE}/reviews/${getProductId()}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ rating: selectedRating, comment })
+                });
+
+                const json = await res.json();
+
+                if (json.success) {
+                    successEl.classList.add('show');
+                    document.getElementById('reviewComment').value = '';
+                    selectedRating = 0;
+                    showToast('Yorumunuz başarıyla eklendi!');
+
+                    // Sayfayı yenile
+                    setTimeout(async () => {
+                        await loadProduct(getProductId());
+                    }, 1000);
+                } else {
+                    errorText.textContent = json.message || 'Yorum gönderilemedi';
+                    errorEl.classList.add('show');
+                }
+            } catch (error) {
+                errorText.textContent = 'Bir hata oluştu';
+                errorEl.classList.add('show');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Yorumu Gönder';
+            }
+        }
+
+        // Yorum sil
+        async function deleteReview(reviewId) {
+            if (!confirm('Yorumu silmek istediğinize emin misiniz?')) return;
+
+            const token = localStorage.getItem('token');
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/reviews/${reviewId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const json = await res.json();
+
+                if (json.success) {
+                    showToast('Yorum silindi');
+                    await loadProduct(getProductId());
+                }
+            } catch (error) {
+                console.error('Yorum silinemedi:', error);
+            }
+        }
+
+        // Sepete ekle
+        function addToCart() {
+            if (!currentProduct) return;
+            showToast(`${currentProduct.name} sepete eklendi!`);
+        }
+
+        // Yıldız render
+        function renderStars(rating, size) {
+            let html = '';
+            const full = Math.floor(rating);
+            const half = rating - full >= 0.5;
+            for (let i = 1; i <= 5; i++) {
+                if (i <= full) {
+                    html += '<i class="fas fa-star star"></i>';
+                } else if (i === full + 1 && half) {
+                    html += '<i class="fas fa-star-half-alt star"></i>';
+                } else {
+                    html += '<i class="fas fa-star star empty"></i>';
+                }
+            }
+            return html;
+        }
+
+        // Fiyat formatla
+        function formatPrice(price) {
+            return parseFloat(price).toLocaleString('tr-TR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+        }
+
+        // HTML escape
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Toast
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastText').textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>

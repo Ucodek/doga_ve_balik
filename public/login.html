@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doğa ve Balık - Giriş Yap</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-dark: #0f1a0f;
+            --accent-green: #38a169;
+            --accent-green-light: #48bb78;
+            --accent-green-dark: #276749;
+            --text-primary: #1a202c;
+            --text-secondary: #718096;
+            --text-light: #a0aec0;
+            --border-color: #e2e8f0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            background: #f5f6f8;
+        }
+
+        /* Sol taraf - görsel */
+        .auth-hero {
+            flex: 1;
+            background: url('https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1200&h=900&fit=crop') center/cover no-repeat;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            padding: 48px;
+        }
+
+        .auth-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(15,50,15,0.9) 0%, rgba(10,35,10,0.3) 50%, rgba(0,0,0,0.1) 100%);
+        }
+
+        .auth-hero-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+        }
+
+        .auth-hero-content .logo-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            margin-bottom: 24px;
+        }
+
+        .auth-hero-content .logo-link img {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+        }
+
+        .auth-hero-content .logo-link span {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .auth-hero-content h2 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .auth-hero-content p {
+            font-size: 15px;
+            color: rgba(255,255,255,0.7);
+            max-width: 400px;
+        }
+
+        /* Sağ taraf - form */
+        .auth-form-side {
+            width: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .auth-form-container {
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .auth-tabs {
+            display: flex;
+            gap: 0;
+            margin-bottom: 32px;
+            background: #edf2f7;
+            border-radius: 10px;
+            padding: 4px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .auth-tab.active {
+            background: white;
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-form h3 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+        }
+
+        .auth-form .subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            color: var(--text-primary);
+            transition: border-color 0.2s ease;
+            outline: none;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-green);
+            box-shadow: 0 0 0 3px rgba(56,161,105,0.1);
+        }
+
+        .form-input-icon {
+            position: relative;
+        }
+
+        .form-input-icon .form-input {
+            padding-left: 40px;
+        }
+
+        .form-input-icon i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-light);
+            font-size: 14px;
+        }
+
+        .auth-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent-green);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 8px;
+        }
+
+        .auth-btn:hover {
+            background: var(--accent-green-dark);
+        }
+
+        .auth-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auth-error {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .auth-error.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .auth-success {
+            background: #c6f6d5;
+            color: #276749;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .auth-success.show {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        @media (max-width: 900px) {
+            .auth-hero { display: none; }
+            .auth-form-side { width: 100%; }
+        }
+
+        @media (max-width: 480px) {
+            .auth-form-side {
+                padding: 24px 20px;
+            }
+
+            .auth-form-container {
+                max-width: 100%;
+            }
+
+            .auth-tabs {
+                margin-bottom: 24px;
+            }
+
+            .auth-tab {
+                font-size: 13px;
+                padding: 9px;
+            }
+
+            .auth-form h3 {
+                font-size: 20px;
+            }
+
+            .auth-form .subtitle {
+                font-size: 13px;
+                margin-bottom: 20px;
+            }
+
+            .form-input {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            .auth-btn {
+                padding: 11px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-hero">
+        <div class="auth-hero-content">
+            <a href="/" class="logo-link">
+                <img src="/assets/logo.jpeg" alt="Logo">
+                <span>Doğa ve Balık</span>
+            </a>
+            <h2>Doğanın Kalbine<br>Hoş Geldin.</h2>
+            <p>Binlerce outdoor ürünü, kampanya ve özel fırsatlar seni bekliyor.</p>
+        </div>
+    </div>
+
+    <div class="auth-form-side">
+        <div class="auth-form-container">
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">Giriş Yap</button>
+                <button class="auth-tab" onclick="switchTab('register')">Hesap Oluştur</button>
+            </div>
+
+            <!-- Giriş Formu -->
+            <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)">
+                <h3>Tekrar Hoş Geldin</h3>
+                <p class="subtitle">Hesabına giriş yap</p>
+
+                <div class="auth-error" id="loginError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span></span>
+                </div>
+
+                <div class="form-group">
+                    <label>E-posta</label>
+                    <div class="form-input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" class="form-input" id="loginEmail" placeholder="ornek@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Şifre</label>
+                    <div class="form-input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn" id="loginBtn">
+                    Giriş Yap
+                </button>
+            </form>
+
+            <!-- Kayıt Formu -->
+            <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)">
+                <h3>Hesap Oluştur</h3>
+                <p class="subtitle">Hemen ücretsiz kayıt ol</p>
+
+                <div class="auth-error" id="registerError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span></span>
+                </div>
+
+                <div class="auth-success" id="registerSuccess">
+                    <i class="fas fa-check-circle"></i>
+                    <span></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Ad Soyad</label>
+                    <div class="form-input-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" class="form-input" id="registerName" placeholder="Adınız Soyadınız" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>E-posta</label>
+                    <div class="form-input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" class="form-input" id="registerEmail" placeholder="ornek@email.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Şifre</label>
+                    <div class="form-input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="form-input" id="registerPassword" placeholder="En az 6 karakter" required minlength="6">
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn" id="registerBtn">
+                    Hesap Oluştur
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api';
+
+        // Zaten giriş yapılmışsa yönlendir
+        window.addEventListener('DOMContentLoaded', () => {
+            const token = localStorage.getItem('token');
+            if (token) {
+                const user = JSON.parse(localStorage.getItem('user') || '{}');
+                if (user.role === 'admin') {
+                    window.location.href = '/admin';
+                } else {
+                    window.location.href = '/';
+                }
+            }
+        });
+
+        function switchTab(tab) {
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+
+            if (tab === 'login') {
+                document.querySelectorAll('.auth-tab')[0].classList.add('active');
+                document.getElementById('loginForm').classList.add('active');
+            } else {
+                document.querySelectorAll('.auth-tab')[1].classList.add('active');
+                document.getElementById('registerForm').classList.add('active');
+            }
+
+            // Hata mesajlarını temizle
+            document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.classList.remove('show'));
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            const errorEl = document.getElementById('loginError');
+            errorEl.classList.remove('show');
+
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            btn.disabled = true;
+            btn.textContent = 'Giriş yapılıyor...';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const json = await res.json();
+
+                if (json.success) {
+                    localStorage.setItem('token', json.data.token);
+                    localStorage.setItem('user', JSON.stringify(json.data.user));
+
+                    if (json.data.user.role === 'admin') {
+                        window.location.href = '/admin';
+                    } else {
+                        window.location.href = '/';
+                    }
+                } else {
+                    errorEl.querySelector('span').textContent = json.message;
+                    errorEl.classList.add('show');
+                }
+            } catch (error) {
+                errorEl.querySelector('span').textContent = 'Bağlantı hatası, lütfen tekrar deneyin.';
+                errorEl.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Giriş Yap';
+            }
+        }
+
+        async function handleRegister(e) {
+            e.preventDefault();
+            const btn = document.getElementById('registerBtn');
+            const errorEl = document.getElementById('registerError');
+            const successEl = document.getElementById('registerSuccess');
+            errorEl.classList.remove('show');
+            successEl.classList.remove('show');
+
+            const fullName = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+
+            btn.disabled = true;
+            btn.textContent = 'Oluşturuluyor...';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fullName, email, password })
+                });
+
+                const json = await res.json();
+
+                if (json.success) {
+                    localStorage.setItem('token', json.data.token);
+                    localStorage.setItem('user', JSON.stringify(json.data.user));
+                    window.location.href = '/';
+                } else {
+                    errorEl.querySelector('span').textContent = json.message;
+                    errorEl.classList.add('show');
+                }
+            } catch (error) {
+                errorEl.querySelector('span').textContent = 'Bağlantı hatası, lütfen tekrar deneyin.';
+                errorEl.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Hesap Oluştur';
+            }
+        }
+    </script>
+</body>
+</html>
