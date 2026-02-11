@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require('../models/User');
 const { authMiddleware, JWT_SECRET } = require('../middleware/auth');
+const { sendResetCode } = require('../utils/mailer');
 
 // POST /api/auth/register - Kayıt ol
 router.post('/register', async (req, res) => {
@@ -140,12 +141,16 @@ router.post('/forgot-password', async (req, res) => {
             resetTokenExpiry: expiry
         });
 
-        console.log(`[Şifre Sıfırlama] ${email} için kod: ${resetCode}`);
+        console.log(`[Şifre Sıfırlama] ${email} için kod gönderiliyor...`);
+
+        // E-posta ile kodu gönder
+        await sendResetCode(email, resetCode);
+
+        console.log(`[Şifre Sıfırlama] ${email} adresine kod gönderildi.`);
 
         res.json({
             success: true,
-            message: 'Şifre sıfırlama kodu oluşturuldu',
-            resetCode: resetCode
+            message: 'Sıfırlama kodu e-posta adresinize gönderildi'
         });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });

@@ -593,14 +593,14 @@
                 const json = await res.json();
 
                 if (json.success) {
-                    // Kodu göster ve reset formuna geç
+                    // Reset formuna geç
                     document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
                     document.getElementById('resetForm').classList.add('active');
 
-                    // Sıfırlama kodunu üst bilgi olarak göster
+                    // Bilgilendirme mesajı
                     const resetSuccess = document.getElementById('resetSuccess');
-                    resetSuccess.querySelector('span').innerHTML = 
-                        `Sıfırlama kodunuz: <strong style="font-size:18px; letter-spacing:3px; margin-left:6px;">${json.resetCode}</strong>`;
+                    resetSuccess.querySelector('span').textContent = 
+                        `Sıfırlama kodu ${forgotEmail} adresine gönderildi. Lütfen e-postanızı kontrol edin.`;
                     resetSuccess.classList.add('show');
                 } else {
                     errorEl.querySelector('span').textContent = json.message;

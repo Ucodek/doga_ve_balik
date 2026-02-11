@@ -237,6 +237,51 @@ body {
     text-align: center;
 }
 
+.contact-phone {
+    align-items: center;
+}
+
+.contact-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--text-sidebar);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    flex: 1;
+}
+
+.contact-link:hover {
+    color: var(--accent-green-light);
+}
+
+.contact-link i {
+    color: var(--text-light);
+    width: 16px;
+    text-align: center;
+    margin-top: 0;
+}
+
+.whatsapp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #25d366;
+    color: white;
+    font-size: 16px;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.whatsapp-btn:hover {
+    background: #128c7e;
+    transform: scale(1.1);
+}
+
 /* ===== MAIN CONTENT ===== */
 .main-content {
     flex: 1;
