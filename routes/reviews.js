@@ -3,7 +3,32 @@ const router = express.Router();
 const Review = require('../models/Review');
 const Product = require('../models/Product');
 const User = require('../models/User');
-const { authMiddleware } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+
+// GET /api/reviews - Tüm yorumları getir (Admin)
+router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const reviews = await Review.findAll({
+            include: [
+                {
+                    model: User,
+                    as: 'user',
+                    attributes: ['id', 'fullName']
+                },
+                {
+                    model: Product,
+                    as: 'product',
+                    attributes: ['id', 'name', 'image']
+                }
+            ],
+            order: [['createdAt', 'DESC']]
+        });
+
+        res.json({ success: true, data: reviews });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
 
 // GET /api/reviews/:productId - Ürüne ait yorumları getir
 router.get('/:productId', async (req, res) => {
@@ -13,7 +38,7 @@ router.get('/:productId', async (req, res) => {
             include: [{
                 model: User,
                 as: 'user',
-                attributes: ['id', 'fullName', 'avatar']
+                attributes: ['id', 'fullName']
             }],
             order: [['createdAt', 'DESC']]
         });
@@ -100,7 +125,7 @@ router.post('/:productId', authMiddleware, async (req, res) => {
             include: [{
                 model: User,
                 as: 'user',
-                attributes: ['id', 'fullName', 'avatar']
+                attributes: ['id', 'fullName']
             }]
         });
 

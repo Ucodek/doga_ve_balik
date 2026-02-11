@@ -53,6 +53,9 @@ function switchAdminTab(tab, el) {
     } else if (tab === 'popular') {
         document.getElementById('tabPopular').classList.add('active');
         loadPopularPanel();
+    } else if (tab === 'reviews') {
+        document.getElementById('tabReviews').classList.add('active');
+        loadAdminReviews();
     }
 }
 
@@ -412,6 +415,79 @@ async function togglePopular(id, isPopular, element) {
                 element.classList.remove('selected');
             }
             showAdminToast(isPopular ? 'Popüler olarak işaretlendi' : 'Popüler listesinden çıkarıldı');
+        }
+    } catch (e) { console.error(e); }
+}
+
+// ===== YORUMLAR =====
+async function loadAdminReviews() {
+    try {
+        const res = await fetch(`${API_BASE}/reviews`, {
+            headers: authHeaders()
+        });
+        const json = await res.json();
+        if (json.success) {
+            renderReviewsTable(json.data);
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function renderReviewsTable(reviews) {
+    const tbody = document.getElementById('reviewsTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (reviews.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#a0aec0;padding:40px;">Henüz yorum yok</td></tr>';
+        return;
+    }
+
+    reviews.forEach(r => {
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+        const date = new Date(r.createdAt).toLocaleDateString('tr-TR');
+        const productName = r.product ? r.product.name : 'Silinmiş Ürün';
+        const productImg = r.product && r.product.image ? r.product.image : 'https://via.placeholder.com/40';
+        const userName = r.user ? r.user.fullName : 'Silinmiş Kullanıcı';
+        const commentShort = r.comment.length > 80 ? r.comment.substring(0, 80) + '...' : r.comment;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <img class="table-img" src="${productImg}" alt="${productName}">
+                    <span style="font-weight:500;font-size:13px;">${productName}</span>
+                </div>
+            </td>
+            <td><strong>${userName}</strong></td>
+            <td><span style="color:#f6ad55;font-size:14px;">${stars}</span></td>
+            <td style="max-width:250px;font-size:13px;color:#4a5568;" title="${r.comment.replace(/"/g, '&quot;')}">${commentShort}</td>
+            <td style="font-size:12px;color:#a0aec0;">${date}</td>
+            <td>
+                <div class="table-actions">
+                    <button class="btn-delete" onclick="deleteReview(${r.id})" title="Yorumu Sil"><i class="fas fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+async function deleteReview(id) {
+    if (!confirm('Bu yorumu silmek istediğinize emin misiniz?')) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/reviews/${id}`, {
+            method: 'DELETE',
+            headers: authHeaders()
+        });
+        const json = await res.json();
+        if (json.success) {
+            loadAdminReviews();
+            showAdminToast('Yorum silindi');
+        } else {
+            alert(json.message);
         }
     } catch (e) { console.error(e); }
 }

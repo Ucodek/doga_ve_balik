@@ -42,6 +42,9 @@
                 <a class="admin-nav-item" data-tab="popular" onclick="switchAdminTab('popular', this)">
                     <i class="fas fa-fire"></i> Popüler Ürünler
                 </a>
+                <a class="admin-nav-item" data-tab="reviews" onclick="switchAdminTab('reviews', this)">
+                    <i class="fas fa-comments"></i> Yorumlar
+                </a>
             </nav>
         </aside>
 
@@ -95,6 +98,29 @@
                             </tr>
                         </thead>
                         <tbody id="categoriesTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- YORUMLAR TAB -->
+            <div class="admin-tab" id="tabReviews">
+                <div class="admin-section-header">
+                    <h2><i class="fas fa-comments"></i> Yorum Yönetimi</h2>
+                </div>
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Ürün</th>
+                                <th>Kullanıcı</th>
+                                <th>Puan</th>
+                                <th>Yorum</th>
+                                <th>Tarih</th>
+                                <th>İşlem</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reviewsTableBody">
                         </tbody>
                     </table>
                 </div>
