@@ -216,7 +216,56 @@
             opacity: 0.6;
             cursor: not-allowed;
         }
+        .forgot-link {
+            color: var(--accent-green);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
 
+        .forgot-link:hover {
+            color: var(--accent-green-dark);
+            text-decoration: underline;
+        }
+
+        .back-to-login {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            margin-bottom: 20px;
+            transition: color 0.2s ease;
+        }
+
+        .back-to-login:hover {
+            color: var(--accent-green);
+        }
+
+        .reset-code-display {
+            background: #f0fff4;
+            border: 2px dashed var(--accent-green);
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .reset-code-display .code-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .reset-code-display .code-value {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: 6px;
+            color: var(--accent-green-dark);
+        }
         .auth-error {
             background: #fed7d7;
             color: #c53030;
@@ -341,6 +390,10 @@
                 <button type="submit" class="auth-btn" id="loginBtn">
                     Giriş Yap
                 </button>
+
+                <div style="text-align:center; margin-top:14px;">
+                    <a href="#" class="forgot-link" onclick="showForgotPassword(); return false;">Şifremi Unuttum</a>
+                </div>
             </form>
 
             <!-- Kayıt Formu -->
@@ -386,11 +439,91 @@
                     Hesap Oluştur
                 </button>
             </form>
+
+            <!-- Şifremi Unuttum Formu - Adım 1: E-posta -->
+            <form class="auth-form" id="forgotForm" onsubmit="handleForgotPassword(event)">
+                <a href="#" class="back-to-login" onclick="backToLogin(); return false;">
+                    <i class="fas fa-arrow-left"></i> Giriş ekranına dön
+                </a>
+                <h3>Şifremi Unuttum</h3>
+                <p class="subtitle">E-posta adresinizi girin, size bir sıfırlama kodu göndereceğiz.</p>
+
+                <div class="auth-error" id="forgotError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span></span>
+                </div>
+
+                <div class="auth-success" id="forgotSuccess">
+                    <i class="fas fa-check-circle"></i>
+                    <span></span>
+                </div>
+
+                <div class="form-group">
+                    <label>E-posta</label>
+                    <div class="form-input-icon">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" class="form-input" id="forgotEmail" placeholder="ornek@email.com" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn" id="forgotBtn">
+                    <i class="fas fa-paper-plane"></i> Kod Gönder
+                </button>
+            </form>
+
+            <!-- Şifre Sıfırlama Formu - Adım 2: Kod + Yeni Şifre -->
+            <form class="auth-form" id="resetForm" onsubmit="handleResetPassword(event)">
+                <a href="#" class="back-to-login" onclick="backToLogin(); return false;">
+                    <i class="fas fa-arrow-left"></i> Giriş ekranına dön
+                </a>
+                <h3>Yeni Şifre Belirle</h3>
+                <p class="subtitle">Sıfırlama kodunu ve yeni şifrenizi girin.</p>
+
+                <div class="auth-error" id="resetError">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span></span>
+                </div>
+
+                <div class="auth-success" id="resetSuccess">
+                    <i class="fas fa-check-circle"></i>
+                    <span></span>
+                </div>
+
+                <div class="form-group">
+                    <label>Sıfırlama Kodu</label>
+                    <div class="form-input-icon">
+                        <i class="fas fa-key"></i>
+                        <input type="text" class="form-input" id="resetCode" placeholder="6 haneli kod" required maxlength="6" pattern="[0-9]{6}">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Yeni Şifre</label>
+                    <div class="form-input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="form-input" id="resetPassword" placeholder="En az 6 karakter" required minlength="6">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Yeni Şifre (Tekrar)</label>
+                    <div class="form-input-icon">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" class="form-input" id="resetPasswordConfirm" placeholder="Şifrenizi tekrar girin" required minlength="6">
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-btn" id="resetBtn">
+                    <i class="fas fa-check"></i> Şifreyi Değiştir
+                </button>
+            </form>
+
         </div>
     </div>
 
     <script>
         const API_BASE = '/api';
+        let forgotEmail = ''; // Şifremi unuttum akışında e-postayı sakla
 
         // Zaten giriş yapılmışsa yönlendir
         window.addEventListener('DOMContentLoaded', () => {
@@ -408,6 +541,7 @@
         function switchTab(tab) {
             document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.querySelector('.auth-tabs').style.display = 'flex';
 
             if (tab === 'login') {
                 document.querySelectorAll('.auth-tab')[0].classList.add('active');
@@ -419,6 +553,115 @@
 
             // Hata mesajlarını temizle
             document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.classList.remove('show'));
+        }
+
+        function showForgotPassword() {
+            document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+            document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.auth-tabs').style.display = 'none';
+            document.getElementById('forgotForm').classList.add('active');
+            document.querySelectorAll('.auth-error, .auth-success').forEach(el => el.classList.remove('show'));
+            const codeDisplay = document.getElementById('resetCodeDisplay');
+            if (codeDisplay) codeDisplay.remove();
+        }
+
+        function backToLogin() {
+            document.querySelector('.auth-tabs').style.display = 'flex';
+            switchTab('login');
+        }
+
+        async function handleForgotPassword(e) {
+            e.preventDefault();
+            const btn = document.getElementById('forgotBtn');
+            const errorEl = document.getElementById('forgotError');
+            const successEl = document.getElementById('forgotSuccess');
+            errorEl.classList.remove('show');
+            successEl.classList.remove('show');
+
+            forgotEmail = document.getElementById('forgotEmail').value;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Gönderiliyor...';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: forgotEmail })
+                });
+
+                const json = await res.json();
+
+                if (json.success) {
+                    // Kodu göster ve reset formuna geç
+                    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+                    document.getElementById('resetForm').classList.add('active');
+
+                    // Sıfırlama kodunu üst bilgi olarak göster
+                    const resetSuccess = document.getElementById('resetSuccess');
+                    resetSuccess.querySelector('span').innerHTML = 
+                        `Sıfırlama kodunuz: <strong style="font-size:18px; letter-spacing:3px; margin-left:6px;">${json.resetCode}</strong>`;
+                    resetSuccess.classList.add('show');
+                } else {
+                    errorEl.querySelector('span').textContent = json.message;
+                    errorEl.classList.add('show');
+                }
+            } catch (error) {
+                errorEl.querySelector('span').textContent = 'Bağlantı hatası, lütfen tekrar deneyin.';
+                errorEl.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Kod Gönder';
+            }
+        }
+
+        async function handleResetPassword(e) {
+            e.preventDefault();
+            const btn = document.getElementById('resetBtn');
+            const errorEl = document.getElementById('resetError');
+            const successEl = document.getElementById('resetSuccess');
+            errorEl.classList.remove('show');
+
+            const code = document.getElementById('resetCode').value;
+            const newPassword = document.getElementById('resetPassword').value;
+            const confirmPassword = document.getElementById('resetPasswordConfirm').value;
+
+            if (newPassword !== confirmPassword) {
+                errorEl.querySelector('span').textContent = 'Şifreler eşleşmiyor';
+                errorEl.classList.add('show');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Değiştiriliyor...';
+
+            try {
+                const res = await fetch(`${API_BASE}/auth/reset-password`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: forgotEmail, code, newPassword })
+                });
+
+                const json = await res.json();
+
+                if (json.success) {
+                    successEl.querySelector('span').textContent = 'Şifreniz başarıyla değiştirildi! Giriş yapabilirsiniz.';
+                    successEl.classList.add('show');
+                    errorEl.classList.remove('show');
+
+                    // 2 saniye sonra giriş formuna yönlendir
+                    setTimeout(() => backToLogin(), 2000);
+                } else {
+                    errorEl.querySelector('span').textContent = json.message;
+                    errorEl.classList.add('show');
+                }
+            } catch (error) {
+                errorEl.querySelector('span').textContent = 'Bağlantı hatası, lütfen tekrar deneyin.';
+                errorEl.classList.add('show');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> Şifreyi Değiştir';
+            }
         }
 
         async function handleLogin(e) {

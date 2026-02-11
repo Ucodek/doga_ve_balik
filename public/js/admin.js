@@ -271,8 +271,6 @@ function openProductModal(product = null) {
         document.getElementById('pStock').value = product.stock;
         document.getElementById('pBadge').value = product.badge || '';
         document.getElementById('pBadgeColor').value = product.badgeColor || '#e53e3e';
-        document.getElementById('pRating').value = product.rating || 0;
-        document.getElementById('pReviewCount').value = product.reviewCount || 0;
         document.getElementById('pFeatured').checked = product.isFeatured;
         document.getElementById('pPopular').checked = product.isPopular;
         document.getElementById('pEditId').value = product.id;
@@ -317,8 +315,6 @@ async function handleProductSubmit(e) {
     formData.append('stock', document.getElementById('pStock').value);
     formData.append('badge', document.getElementById('pBadge').value);
     formData.append('badgeColor', document.getElementById('pBadgeColor').value);
-    formData.append('rating', document.getElementById('pRating').value);
-    formData.append('reviewCount', document.getElementById('pReviewCount').value);
     formData.append('isFeatured', document.getElementById('pFeatured').checked);
     formData.append('isPopular', document.getElementById('pPopular').checked);
 

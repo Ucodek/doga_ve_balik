@@ -310,44 +310,6 @@ body {
     color: var(--text-light);
 }
 
-.cart-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    background: white;
-    color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    position: relative;
-    font-size: 16px;
-    transition: all 0.2s ease;
-}
-
-.cart-btn:hover {
-    border-color: var(--accent-green);
-    color: var(--accent-green);
-}
-
-.cart-count {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: var(--accent-green);
-    color: white;
-    font-size: 10px;
-    font-weight: 700;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--bg-main);
-}
-
 .user-avatar {
     width: 42px;
     height: 42px;
@@ -844,26 +806,6 @@ body {
     color: var(--accent-green);
 }
 
-.add-to-cart-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px;
-    border: none;
-    background: var(--accent-green);
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
-
-.add-to-cart-btn:hover {
-    background: var(--accent-green-dark);
-    transform: scale(1.05);
-}
-
 /* ===== LOADING ===== */
 .loading-skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
@@ -1092,12 +1034,6 @@ body {
         font-size: 12px;
     }
 
-    .cart-btn {
-        width: 38px;
-        height: 38px;
-        font-size: 14px;
-    }
-
     .user-avatar {
         width: 38px;
         height: 38px;
@@ -1196,12 +1132,6 @@ body {
     }
 
     .product-price .currency {
-        font-size: 13px;
-    }
-
-    .add-to-cart-btn {
-        width: 36px;
-        height: 36px;
         font-size: 13px;
     }
 

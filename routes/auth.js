@@ -111,4 +111,101 @@ router.get('/me', authMiddleware, async (req, res) => {
     }
 });
 
+// POST /api/auth/forgot-password - Şifre sıfırlama kodu gönder
+router.post('/forgot-password', async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'E-posta adresi zorunludur'
+            });
+        }
+
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Bu e-posta adresiyle kayıtlı kullanıcı bulunamadı'
+            });
+        }
+
+        // 6 haneli rastgele kod oluştur
+        const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expiry = new Date(Date.now() + 15 * 60 * 1000); // 15 dakika geçerli
+
+        await user.update({
+            resetToken: resetCode,
+            resetTokenExpiry: expiry
+        });
+
+        console.log(`[Şifre Sıfırlama] ${email} için kod: ${resetCode}`);
+
+        res.json({
+            success: true,
+            message: 'Şifre sıfırlama kodu oluşturuldu',
+            resetCode: resetCode
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// POST /api/auth/reset-password - Şifreyi sıfırla
+router.post('/reset-password', async (req, res) => {
+    try {
+        const { email, code, newPassword } = req.body;
+
+        if (!email || !code || !newPassword) {
+            return res.status(400).json({
+                success: false,
+                message: 'E-posta, kod ve yeni şifre zorunludur'
+            });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'Yeni şifre en az 6 karakter olmalıdır'
+            });
+        }
+
+        const user = await User.findOne({ where: { email } });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'Kullanıcı bulunamadı'
+            });
+        }
+
+        if (!user.resetToken || user.resetToken !== code) {
+            return res.status(400).json({
+                success: false,
+                message: 'Geçersiz sıfırlama kodu'
+            });
+        }
+
+        if (new Date() > new Date(user.resetTokenExpiry)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Sıfırlama kodunun süresi dolmuş. Lütfen yeni kod isteyin.'
+            });
+        }
+
+        await user.update({
+            password: newPassword,
+            resetToken: null,
+            resetTokenExpiry: null
+        });
+
+        res.json({
+            success: true,
+            message: 'Şifreniz başarıyla değiştirildi'
+        });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
 module.exports = router;

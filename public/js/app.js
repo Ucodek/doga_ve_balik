@@ -2,7 +2,6 @@
 const API_BASE = '/api';
 
 // ===== STATE =====
-let cart = [];
 let allProducts = [];
 let allCategories = [];
 let popularProducts = [];
@@ -251,8 +250,7 @@ function renderProducts(products) {
     products.forEach(product => {
         const card = document.createElement('div');
         card.className = 'product-card';
-        card.onclick = (e) => {
-            if (e.target.closest('.add-to-cart-btn')) return;
+        card.onclick = () => {
             window.location.href = `/product/${product.id}`;
         };
 
@@ -285,9 +283,6 @@ function renderProducts(products) {
                         ${oldPriceHtml}
                         <span class="product-price">${formatPrice(product.price)}<span class="currency">₺</span></span>
                     </div>
-                    <button class="add-to-cart-btn" onclick="addToCart(${product.id}, event)">
-                        <i class="fas fa-cart-plus"></i>
-                    </button>
                 </div>
             </div>
         `;
@@ -337,30 +332,6 @@ function setupSearch() {
             }
         }, 300);
     });
-}
-
-// ===== SEPET =====
-function addToCart(productId, event) {
-    event.stopPropagation();
-
-    const product = allProducts.find(p => p.id === productId);
-    if (!product) return;
-
-    const existingItem = cart.find(item => item.id === productId);
-    if (existingItem) {
-        existingItem.quantity++;
-    } else {
-        cart.push({ ...product, quantity: 1 });
-    }
-
-    updateCartCount();
-    showToast(`${product.name} sepete eklendi!`);
-}
-
-function updateCartCount() {
-    const countEl = document.getElementById('cartCount');
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-    countEl.textContent = totalItems;
 }
 
 // ===== TOAST BİLDİRİM =====

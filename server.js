@@ -59,6 +59,18 @@ async function startServer() {
         console.log('Veritabanı bağlantısı başarılı.');
 
         await sequelize.sync({ force: false });
+
+        // Eksik sütunları ekle (migration)
+        const queryInterface = sequelize.getQueryInterface();
+        try {
+            const tableInfo = await queryInterface.describeTable('Users');
+            if (!tableInfo.resetToken) {
+                await queryInterface.addColumn('Users', 'resetToken', { type: require('sequelize').DataTypes.STRING, allowNull: true });
+            }
+            if (!tableInfo.resetTokenExpiry) {
+                await queryInterface.addColumn('Users', 'resetTokenExpiry', { type: require('sequelize').DataTypes.DATE, allowNull: true });
+            }
+        } catch (e) { /* tablo yoksa sync zaten oluşturur */ }
         console.log('Tablolar senkronize edildi.');
 
         // Seed data ekle (eğer boşsa)

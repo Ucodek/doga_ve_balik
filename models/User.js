@@ -29,6 +29,14 @@ const User = sequelize.define('User', {
         defaultValue: 'user',
         comment: 'Kullanıcı rolü: user veya admin'
     },
+    resetToken: {
+        type: DataTypes.STRING,
+        allowNull: true
+    },
+    resetTokenExpiry: {
+        type: DataTypes.DATE,
+        allowNull: true
+    },
 }, {
     tableName: 'Users',
     timestamps: true,

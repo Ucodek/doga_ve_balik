@@ -96,50 +96,7 @@
             gap: 12px;
         }
 
-        .topbar-cart-btn {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
-            background: white;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            position: relative;
-            font-size: 16px;
-            transition: all 0.2s ease;
-        }
-
-        .topbar-cart-btn:hover {
-            border-color: var(--accent-green);
-            color: var(--accent-green);
-        }
-
-        .topbar-user-area {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .topbar-login-btn {
-            padding: 9px 18px;
-            background: var(--accent-green);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: background 0.2s ease;
-        }
-
-        .topbar-login-btn:hover {
-            background: var(--accent-green-dark);
-        }
-
-        /* ===== BREADCRUMB ===== */
+        /* ===== REVIEWS SECTION ===== */
         .breadcrumb {
             max-width: 1200px;
             margin: 0 auto;
@@ -308,57 +265,29 @@
         .stock-dot.low-stock { background: #dd6b20; }
         .stock-dot.out-of-stock { background: var(--accent-red); }
 
-        .product-actions {
+        .topbar-user-area {
             display: flex;
-            gap: 12px;
-            margin-top: auto;
+            align-items: center;
+            gap: 10px;
         }
 
-        .btn-add-cart {
-            flex: 1;
-            padding: 14px 28px;
+        .topbar-login-btn {
+            padding: 9px 18px;
             background: var(--accent-green);
             color: white;
             border: none;
-            border-radius: var(--radius-md);
-            font-size: 16px;
-            font-weight: 700;
-            font-family: inherit;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.2s ease;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s ease;
         }
 
-        .btn-add-cart:hover {
+        .topbar-login-btn:hover {
             background: var(--accent-green-dark);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(56, 161, 105, 0.4);
         }
 
-        .btn-favorite {
-            width: 52px;
-            height: 52px;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-            background: white;
-            color: var(--text-light);
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-favorite:hover {
-            border-color: var(--accent-red);
-            color: var(--accent-red);
-        }
-
-        /* ===== REVIEWS SECTION ===== */
+        /* ===== BREADCRUMB ===== */
         .reviews-section {
             max-width: 1200px;
             margin: 0 auto;
@@ -777,14 +706,6 @@
                 font-size: 22px;
             }
 
-            .product-price-lg {
-                font-size: 28px;
-            }
-
-            .product-price-lg .currency {
-                font-size: 22px;
-            }
-
             .reviews-section {
                 padding: 0 16px 40px;
             }
@@ -886,9 +807,6 @@
             </a>
         </div>
         <div class="topbar-right">
-            <button class="topbar-cart-btn" onclick="window.location.href='/'">
-                <i class="fas fa-shopping-bag"></i>
-            </button>
             <div class="topbar-user-area" id="topbarUserArea"></div>
         </div>
     </header>
@@ -1056,15 +974,7 @@
                             <span class="stock-dot ${stockClass}"></span>
                             <span>${stockText}</span>
                         </div>
-                        <div class="product-actions">
-                            <button class="btn-add-cart" onclick="addToCart()">
-                                <i class="fas fa-cart-plus"></i>
-                                Sepete Ekle
-                            </button>
-                            <button class="btn-favorite">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             `;
@@ -1295,12 +1205,6 @@
             } catch (error) {
                 console.error('Yorum silinemedi:', error);
             }
-        }
-
-        // Sepete ekle
-        function addToCart() {
-            if (!currentProduct) return;
-            showToast(`${currentProduct.name} sepete eklendi!`);
         }
 
         // Yıldız render
