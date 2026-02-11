@@ -130,20 +130,6 @@ async function seedDatabase() {
                 categoryId: kampMalzemeleri.id
             },
             {
-                name: 'LED Kafa Lambası Pro',
-                description: '1200 lümen, şarj edilebilir, IPX6 su geçirmez. 8 saat pil ömrü.',
-                price: 320,
-                oldPrice: null,
-                image: 'https://images.unsplash.com/photo-1590488642258-cc1e11d3f8c3?w=400&h=400&fit=crop',
-                rating: 4.4,
-                reviewCount: 89,
-                badge: 'YENİ',
-                badgeColor: '#38a169',
-                stock: 200,
-                isFeatured: true,
-                categoryId: kafaLambalari.id
-            },
-            {
                 name: 'Katlanır Kamp Sandalyesi',
                 description: 'Ultra hafif, 150kg taşıma kapasitesi, taşıma çantalı. Hızlı kurulum.',
                 price: 550,
