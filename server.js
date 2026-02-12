@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -13,7 +14,10 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+const corsOptions = process.env.CORS_ORIGIN
+    ? { origin: process.env.CORS_ORIGIN.split(','), credentials: true }
+    : {};
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -77,22 +81,9 @@ async function startServer() {
         await seedDatabase();
 
         app.listen(PORT, '0.0.0.0', () => {
-            // Hamachi IP adresini otomatik bul
-            const os = require('os');
-            const interfaces = os.networkInterfaces();
-            let hamachiIP = null;
-            for (const [name, addrs] of Object.entries(interfaces)) {
-                for (const addr of addrs) {
-                    if (addr.family === 'IPv4' && addr.address.startsWith('25.')) {
-                        hamachiIP = addr.address;
-                    }
-                }
-            }
             console.log(`Sunucu http://localhost:${PORT} adresinde çalışıyor`);
-            if (hamachiIP) {
-                console.log(`Hamachi ile erişim: http://${hamachiIP}:${PORT}`);
-            } else {
-                console.log('Hamachi ağı bulunamadı. Hamachi açık olduğundan emin olun.');
+            if (process.env.NODE_ENV === 'production') {
+                console.log('Production modunda çalışıyor.');
             }
         });
     } catch (error) {

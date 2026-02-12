@@ -164,12 +164,12 @@ async function seedDatabase() {
         const adminExists = await User.findOne({ where: { email: 'admin@dogavebalik.com' } });
         if (!adminExists) {
             await User.create({
-                fullName: 'Admin',
-                email: 'admin@dogavebalik.com',
-                password: 'admin123',
+                fullName: process.env.ADMIN_NAME || 'Admin',
+                email: process.env.ADMIN_EMAIL || 'admin@dogavebalik.com',
+                password: process.env.ADMIN_PASSWORD || '34412003sbho', // Güçlü bir şifre kullanın
                 role: 'admin'
             });
-            console.log('Admin kullanıcı oluşturuldu: admin@dogavebalik.com / admin123');
+            console.log(`Admin kullanıcı oluşturuldu: ${process.env.ADMIN_EMAIL || 'admin@dogavebalik.com'} / (Şifre .env dosyasından okundu)`);
         }
     } catch (error) {
         console.error('Seed hatası:', error);

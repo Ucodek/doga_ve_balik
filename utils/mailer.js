@@ -3,15 +3,15 @@ const nodemailer = require('nodemailer');
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: 'dogavebalik42@gmail.com',
-        pass: 'uqwm umym fzxq nbml'
+        user: process.env.MAIL_USER,
+        pass: process.env.MAIL_PASS
     }
 });
 
 // Şifre sıfırlama kodu gönder
 async function sendResetCode(toEmail, resetCode) {
     const mailOptions = {
-        from: '"Doğa ve Balık" <dogavebalik42@gmail.com>',
+        from: `"Doğa ve Balık" <${process.env.MAIL_USER}>`,
         to: toEmail,
         subject: 'Şifre Sıfırlama Kodu - Doğa ve Balık',
         html: `
