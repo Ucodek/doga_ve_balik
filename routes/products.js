@@ -4,6 +4,9 @@ const multer = require('multer');
 const path = require('path');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
+const sharp = require("sharp");
+const path = require("path");
+const fs = require("fs");
 
 // Multer konfigürasyonu (görsel yükleme)
 const storage = multer.diskStorage({
