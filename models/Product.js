@@ -28,7 +28,24 @@ const Product = sequelize.define('Product', {
     image: {
         type: DataTypes.STRING,
         allowNull: true,
-        comment: 'Ürün görseli dosya yolu'
+        comment: 'Ana ürün görseli dosya yolu (thumbnail)'
+    },
+    images: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        comment: 'Ürün görselleri (JSON array)',
+        get() {
+            const raw = this.getDataValue('images');
+            if (!raw) return [];
+            try { return JSON.parse(raw); } catch(e) { return []; }
+        },
+        set(val) {
+            if (Array.isArray(val)) {
+                this.setDataValue('images', JSON.stringify(val));
+            } else {
+                this.setDataValue('images', val);
+            }
+        }
     },
     rating: {
         type: DataTypes.DECIMAL(2, 1),

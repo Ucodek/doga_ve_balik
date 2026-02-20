@@ -189,11 +189,10 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Ürün Görseli</label>
-                        <input type="file" class="form-input" id="pImage" accept="image/*">
-                        <div class="current-image" id="pCurrentImage" style="display:none;">
-                            <img id="pCurrentImagePreview" src="" alt="Mevcut">
-                            <span>Mevcut görsel</span>
+                        <label>Ürün Görselleri (Birden fazla seçebilirsiniz)</label>
+                        <input type="file" class="form-input" id="pImage" accept="image/*" multiple>
+                        <div class="image-preview-container" id="pImagePreviewContainer">
+                            <!-- Mevcut ve yeni görsellerin önizlemeleri burada gösterilir -->
                         </div>
                     </div>
                     <div class="form-row">

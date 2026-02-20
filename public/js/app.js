@@ -23,7 +23,7 @@ const iconMap = {
 document.addEventListener('DOMContentLoaded', async () => {
     renderUserArea();
     await loadCategories();
-    await Promise.all([loadProducts(), loadPopularProducts()]);
+    await Promise.all([loadProducts({ featured: true }), loadPopularProducts()]);
     setupSearch();
 });
 

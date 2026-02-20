@@ -75,6 +75,16 @@ async function startServer() {
                 await queryInterface.addColumn('Users', 'resetTokenExpiry', { type: require('sequelize').DataTypes.DATE, allowNull: true });
             }
         } catch (e) { /* tablo yoksa sync zaten oluşturur */ }
+
+        // Products tablosuna images sütunu ekle
+        try {
+            const productsInfo = await queryInterface.describeTable('Products');
+            if (!productsInfo.images) {
+                await queryInterface.addColumn('Products', 'images', { type: require('sequelize').DataTypes.TEXT, allowNull: true });
+                console.log('Products tablosuna images sütunu eklendi.');
+            }
+        } catch (e) { /* tablo yoksa sync zaten oluşturur */ }
+
         console.log('Tablolar senkronize edildi.');
 
         // Seed data ekle (eğer boşsa)

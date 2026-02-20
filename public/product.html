@@ -138,9 +138,127 @@
             background: #f7fafc;
             padding: 40px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             position: relative;
+        }
+
+        /* Image Carousel */
+        .carousel-wrapper {
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            border-radius: var(--radius-md);
+            touch-action: pan-y pinch-zoom;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: grab;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.35s ease;
+            will-change: transform;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .carousel-slide img {
+            width: 100%;
+            max-height: 450px;
+            object-fit: contain;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.9);
+            border: 1px solid var(--border-color);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text-primary);
+            z-index: 10;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .carousel-btn:hover {
+            background: white;
+            box-shadow: var(--shadow-md);
+        }
+
+        .carousel-btn.prev { left: 12px; }
+        .carousel-btn.next { right: 12px; }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #cbd5e0;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0;
+        }
+
+        .carousel-dot.active {
+            background: var(--accent-green);
+            transform: scale(1.2);
+        }
+
+        .carousel-thumbnails {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .carousel-thumb {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: border-color 0.2s, transform 0.15s;
+            opacity: 0.6;
+        }
+
+        .carousel-thumb.active {
+            border-color: var(--accent-green);
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .carousel-thumb:hover {
+            opacity: 1;
+        }
+
+        .carousel-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .product-image-section img {
@@ -697,8 +815,23 @@
                 padding: 24px;
             }
 
-            .product-image-section img {
+            .product-image-section img,
+            .carousel-slide img {
                 max-height: 300px;
+            }
+
+            .carousel-btn {
+                width: 34px;
+                height: 34px;
+                font-size: 14px;
+            }
+
+            .carousel-btn.prev { left: 8px; }
+            .carousel-btn.next { right: 8px; }
+
+            .carousel-thumb {
+                width: 46px;
+                height: 46px;
             }
 
             .product-info-section {
@@ -951,12 +1084,59 @@
 
             const starsHtml = renderStars(product.rating || 0);
 
+            // Görseller: images array veya fallback olarak tek image
+            let allImages = [];
+            if (product.images && product.images.length > 0) {
+                allImages = product.images;
+            } else if (product.image) {
+                allImages = [product.image];
+            } else {
+                allImages = ['https://via.placeholder.com/600x400?text=Ürün'];
+            }
+
+            // Carousel veya tek görsel
+            let imageHtml = '';
+            if (allImages.length > 1) {
+                const slidesHtml = allImages.map((img, i) => `
+                    <div class="carousel-slide">
+                        <img src="${img}" alt="${product.name} - Görsel ${i+1}" 
+                             onerror="this.src='https://via.placeholder.com/600x400?text=Görsel+Yok'">
+                    </div>
+                `).join('');
+
+                const dotsHtml = allImages.map((_, i) => `
+                    <button class="carousel-dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></button>
+                `).join('');
+
+                const thumbsHtml = allImages.map((img, i) => `
+                    <div class="carousel-thumb ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})">
+                        <img src="${img}" alt="Thumbnail ${i+1}">
+                    </div>
+                `).join('');
+
+                imageHtml = `
+                    <div class="carousel-wrapper" id="carouselWrapper">
+                        <div class="carousel-track" id="carouselTrack">
+                            ${slidesHtml}
+                        </div>
+                        <button class="carousel-btn prev" onclick="prevSlide()"><i class="fas fa-chevron-left"></i></button>
+                        <button class="carousel-btn next" onclick="nextSlide()"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="carousel-dots" id="carouselDots">${dotsHtml}</div>
+                    <div class="carousel-thumbnails" id="carouselThumbs">${thumbsHtml}</div>
+                `;
+            } else {
+                imageHtml = `
+                    <img src="${allImages[0]}" 
+                         alt="${product.name}"
+                         onerror="this.src='https://via.placeholder.com/600x400?text=Görsel+Yok'">
+                `;
+            }
+
             document.getElementById('productDetail').innerHTML = `
                 <div class="product-detail-grid">
                     <div class="product-image-section">
-                        <img src="${product.image || 'https://via.placeholder.com/600x400?text=Ürün'}" 
-                             alt="${product.name}"
-                             onerror="this.src='https://via.placeholder.com/600x400?text=Görsel+Yok'">
+                        ${imageHtml}
                         ${badgeHtml}
                     </div>
                     <div class="product-info-section">
@@ -981,6 +1161,132 @@
                     </div>
                 </div>
             `;
+
+            // Carousel varsa touch/swipe ayarla
+            if (allImages.length > 1) {
+                initCarousel(allImages.length);
+            }
+        }
+
+        // ===== CAROUSEL FONKSİYONLARI =====
+        let currentSlide = 0;
+        let totalSlides = 0;
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+        let isDragging = false;
+        let swipeHandled = false;
+
+        function initCarousel(count) {
+            totalSlides = count;
+            currentSlide = 0;
+
+            const wrapper = document.getElementById('carouselWrapper');
+            if (!wrapper) return;
+
+            // Touch events
+            wrapper.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+                touchEndX = touchStartX;
+                touchEndY = touchStartY;
+                isDragging = true;
+                swipeHandled = false;
+            }, { passive: true });
+
+            wrapper.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                touchEndX = e.changedTouches[0].screenX;
+                touchEndY = e.changedTouches[0].screenY;
+
+                // Yatay kaydırma daha baskınsa sayfanın dikey scrollunu engelle
+                const diffX = Math.abs(touchStartX - touchEndX);
+                const diffY = Math.abs(touchStartY - touchEndY);
+                if (diffX > diffY && diffX > 10) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+
+            wrapper.addEventListener('touchend', () => {
+                if (!isDragging || swipeHandled) return;
+                isDragging = false;
+                swipeHandled = true;
+                handleSwipe();
+            });
+
+            // Mouse drag events (desktop)
+            wrapper.addEventListener('mousedown', (e) => {
+                touchStartX = e.screenX;
+                touchEndX = touchStartX;
+                isDragging = true;
+                swipeHandled = false;
+                wrapper.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            wrapper.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                touchEndX = e.screenX;
+            });
+
+            wrapper.addEventListener('mouseup', () => {
+                if (!isDragging || swipeHandled) return;
+                isDragging = false;
+                swipeHandled = true;
+                wrapper.style.cursor = '';
+                handleSwipe();
+            });
+
+            wrapper.addEventListener('mouseleave', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    wrapper.style.cursor = '';
+                }
+            });
+        }
+
+        function handleSwipe() {
+            const diff = touchStartX - touchEndX;
+            const threshold = 50;
+            if (diff > threshold) {
+                nextSlide();
+            } else if (diff < -threshold) {
+                prevSlide();
+            }
+        }
+
+        function goToSlide(index) {
+            if (index < 0 || index >= totalSlides) return;
+            currentSlide = index;
+            updateCarousel();
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateCarousel();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateCarousel();
+        }
+
+        function updateCarousel() {
+            const track = document.getElementById('carouselTrack');
+            if (track) {
+                track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            }
+
+            // Dots güncelle
+            document.querySelectorAll('.carousel-dot').forEach((dot, i) => {
+                dot.classList.toggle('active', i === currentSlide);
+            });
+
+            // Thumbnails güncelle
+            document.querySelectorAll('.carousel-thumb').forEach((thumb, i) => {
+                thumb.classList.toggle('active', i === currentSlide);
+            });
         }
 
         // Yorumları yükle

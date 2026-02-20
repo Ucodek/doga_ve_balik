@@ -4,9 +4,9 @@ const multer = require('multer');
 const path = require('path');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
-const sharp = require("sharp");
-const path = require("path");
 const fs = require("fs");
+let sharp;
+try { sharp = require("sharp"); } catch(e) { sharp = null; }
 
 // Multer konfigürasyonu (görsel yükleme)
 const storage = multer.diskStorage({
@@ -91,7 +91,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/products - Yeni ürün ekle (mobil uygulamadan)
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', upload.array('images', 10), async (req, res) => {
     try {
         const {
             name, description, price, oldPrice,
@@ -112,12 +112,24 @@ router.post('/', upload.single('image'), async (req, res) => {
             return res.status(400).json({ success: false, message: 'Geçersiz kategori ID' });
         }
 
+        // Çoklu görsel işleme
+        let imagePaths = [];
+        if (req.files && req.files.length > 0) {
+            imagePaths = req.files.map(f => `/uploads/${f.filename}`);
+        }
+
+        // Geriye uyumluluk: tek görsel de destekle
+        if (req.file) {
+            imagePaths = [`/uploads/${req.file.filename}`];
+        }
+
         const product = await Product.create({
             name,
             description: description || null,
             price: parseFloat(price),
-            oldPrice: oldPrice ? parseFloat(oldPrice) : null,
-            image: req.file ? `/uploads/${req.file.filename}` : null,
+            oldPrice: (oldPrice && oldPrice !== '' && !isNaN(parseFloat(oldPrice))) ? parseFloat(oldPrice) : null,
+            image: imagePaths.length > 0 ? imagePaths[0] : null,
+            images: imagePaths,
             rating: rating ? parseFloat(rating) : 0,
             reviewCount: reviewCount ? parseInt(reviewCount) : 0,
             badge: badge || null,
@@ -135,7 +147,7 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // PUT /api/products/:id - Ürün güncelle (mobil uygulamadan)
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id', upload.array('images', 10), async (req, res) => {
     try {
         const product = await Product.findByPk(req.params.id);
         if (!product) {
@@ -145,7 +157,8 @@ router.put('/:id', upload.single('image'), async (req, res) => {
         const {
             name, description, price, oldPrice,
             rating, reviewCount, badge, badgeColor,
-            stock, isFeatured, isPopular, isActive, categoryId
+            stock, isFeatured, isPopular, isActive, categoryId,
+            existingImages, removedImages
         } = req.body;
 
         const updateData = {};
@@ -153,7 +166,6 @@ router.put('/:id', upload.single('image'), async (req, res) => {
         if (description !== undefined) updateData.description = description;
         if (price) updateData.price = parseFloat(price);
         if (oldPrice !== undefined) updateData.oldPrice = oldPrice ? parseFloat(oldPrice) : null;
-        if (req.file) updateData.image = `/uploads/${req.file.filename}`;
         if (rating !== undefined) updateData.rating = parseFloat(rating);
         if (reviewCount !== undefined) updateData.reviewCount = parseInt(reviewCount);
         if (badge !== undefined) updateData.badge = badge;
@@ -163,6 +175,40 @@ router.put('/:id', upload.single('image'), async (req, res) => {
         if (isPopular !== undefined) updateData.isPopular = isPopular === 'true' || isPopular === true;
         if (isActive !== undefined) updateData.isActive = isActive === 'true' || isActive === true;
         if (categoryId) updateData.categoryId = parseInt(categoryId);
+
+        // Mevcut görselleri koru, silinen görselleri çıkar, yeni görselleri ekle
+        let currentImages = product.images || [];
+        
+        // existingImages: frontend'den gelen korunacak görseller listesi (JSON string)
+        if (existingImages !== undefined) {
+            try {
+                currentImages = JSON.parse(existingImages);
+            } catch(e) {
+                currentImages = [];
+            }
+        }
+
+        // Silinen görselleri dosya sisteminden sil
+        if (removedImages) {
+            try {
+                const removed = JSON.parse(removedImages);
+                removed.forEach(imgPath => {
+                    const fullPath = path.join(__dirname, '..', imgPath);
+                    if (fs.existsSync(fullPath)) {
+                        fs.unlinkSync(fullPath);
+                    }
+                });
+            } catch(e) { /* ignore */ }
+        }
+
+        // Yeni yüklenen görselleri ekle
+        if (req.files && req.files.length > 0) {
+            const newPaths = req.files.map(f => `/uploads/${f.filename}`);
+            currentImages = [...currentImages, ...newPaths];
+        }
+
+        updateData.images = currentImages;
+        updateData.image = currentImages.length > 0 ? currentImages[0] : null;
 
         await product.update(updateData);
         res.json({ success: true, data: product });
