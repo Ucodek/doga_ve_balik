@@ -23,8 +23,31 @@ const iconMap = {
 document.addEventListener('DOMContentLoaded', async () => {
     renderUserArea();
     await loadCategories();
-    await Promise.all([loadProducts({ featured: true }), loadPopularProducts()]);
+
+    // Kaydedilmiş kategori varsa onu yükle, yoksa öne çıkan ürünleri göster
+    const savedCategoryId = sessionStorage.getItem('selectedCategoryId');
+    if (savedCategoryId) {
+        await Promise.all([loadProducts({ categoryId: savedCategoryId }), loadPopularProducts()]);
+        // Sidebar'da ilgili kategoriyi aktif yap
+        restoreActiveCategory(parseInt(savedCategoryId));
+        // Başlığı güncelle
+        updateSectionTitle(parseInt(savedCategoryId));
+    } else {
+        await Promise.all([loadProducts({ featured: true }), loadPopularProducts()]);
+    }
+
     setupSearch();
+
+    // Kaydedilmiş scroll pozisyonunu geri yükle
+    const savedScroll = sessionStorage.getItem('productsScrollTop');
+    if (savedScroll) {
+        const grid = document.getElementById('productsGrid');
+        if (grid) {
+            requestAnimationFrame(() => {
+                grid.scrollTop = parseInt(savedScroll);
+            });
+        }
+    }
 });
 
 // ===== KULLANICI ALANI =====
@@ -106,6 +129,21 @@ function renderCategories(categories) {
     const list = document.getElementById('categoryList');
     list.innerHTML = '';
 
+    const savedCategoryId = sessionStorage.getItem('selectedCategoryId');
+
+    // Öne Çıkanlar linki
+    const homeLi = document.createElement('li');
+    homeLi.className = 'category-item';
+    homeLi.innerHTML = `
+        <a class="category-link ${!savedCategoryId ? 'active' : ''}" 
+           data-id="featured" 
+           onclick="showFeatured(this)">
+            <span class="cat-icon"><i class="fas fa-star"></i></span>
+            <span>Öne Çıkanlar</span>
+        </a>
+    `;
+    list.appendChild(homeLi);
+
     categories.forEach((cat, index) => {
         const hasSubCategories = cat.subCategories && cat.subCategories.length > 0;
         const li = document.createElement('li');
@@ -113,8 +151,11 @@ function renderCategories(categories) {
 
         const iconClass = iconMap[cat.icon] || 'fa-folder';
 
+        // Kayıtlı kategori yoksa hiçbirini aktif yapma (Öne Çıkanlar zaten aktif)
+        const isDefaultActive = false;
+
         li.innerHTML = `
-            <a class="category-link ${index === 0 ? 'active expanded' : ''}" 
+            <a class="category-link ${isDefaultActive ? 'active expanded' : ''}" 
                data-id="${cat.id}" 
                onclick="toggleCategory(this, ${cat.id}, ${hasSubCategories})">
                 <span class="cat-icon"><i class="fas ${iconClass}"></i></span>
@@ -122,10 +163,10 @@ function renderCategories(categories) {
                 ${hasSubCategories ? '<span class="cat-arrow"><i class="fas fa-chevron-down"></i></span>' : ''}
             </a>
             ${hasSubCategories ? `
-                <ul class="sub-category-list ${index === 0 ? 'open' : ''}">
+                <ul class="sub-category-list ${isDefaultActive ? 'open' : ''}">
                     ${cat.subCategories.map(sub => `
                         <li class="sub-category-item">
-                            <a class="sub-category-link" onclick="filterByCategory(${sub.id})">${sub.name}</a>
+                            <a class="sub-category-link" data-id="${sub.id}" onclick="filterByCategory(${sub.id})">${sub.name}</a>
                         </li>
                     `).join('')}
                 </ul>
@@ -136,9 +177,46 @@ function renderCategories(categories) {
     });
 }
 
+// Sayfa yenilendiğinde sidebar'da doğru kategoriyi aktif yap
+function restoreActiveCategory(categoryId) {
+    // Önce ana kategorilerde ara
+    const mainLink = document.querySelector(`.category-link[data-id="${categoryId}"]`);
+    if (mainLink) {
+        document.querySelectorAll('.category-link').forEach(el => el.classList.remove('active', 'expanded'));
+        mainLink.classList.add('active', 'expanded');
+        const subList = mainLink.nextElementSibling;
+        if (subList && subList.classList.contains('sub-category-list')) {
+            subList.classList.add('open');
+        }
+        return;
+    }
+
+    // Alt kategorilerde ara
+    const subLink = document.querySelector(`.sub-category-link[data-id="${categoryId}"]`);
+    if (subLink) {
+        // Üst kategoriyi bul ve aç
+        const parentItem = subLink.closest('.category-item');
+        if (parentItem) {
+            const parentLink = parentItem.querySelector('.category-link');
+            if (parentLink) {
+                document.querySelectorAll('.category-link').forEach(el => el.classList.remove('active', 'expanded'));
+                parentLink.classList.add('active', 'expanded');
+                const subList = parentLink.nextElementSibling;
+                if (subList) subList.classList.add('open');
+            }
+        }
+        subLink.style.background = 'rgba(56, 161, 105, 0.15)';
+        subLink.style.color = '#48bb78';
+    }
+}
+
 function toggleCategory(element, categoryId, hasSubCategories) {
     // Aktif sınıfını güncelle
     document.querySelectorAll('.category-link').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.sub-category-link').forEach(el => {
+        el.style.background = '';
+        el.style.color = '';
+    });
     element.classList.add('active');
 
     if (hasSubCategories) {
@@ -301,8 +379,59 @@ function filterByCategory(categoryId) {
         category.subCategories.forEach(sub => categoryIds.push(sub.id));
     }
 
+    // Seçilen kategoriyi kaydet
+    sessionStorage.setItem('selectedCategoryId', categoryId);
+    // Scroll pozisyonunu sıfırla (yeni kategori)
+    sessionStorage.removeItem('productsScrollTop');
+
+    // Section başlığını güncelle
+    updateSectionTitle(categoryId);
+
     // Mevcut ürünlerden filtrele ya da API'den çek
     loadProducts({ categoryId: categoryId });
+}
+
+// Öne Çıkan Ürünleri Göster
+function showFeatured(element) {
+    // Aktif sınıfını güncelle
+    document.querySelectorAll('.category-link').forEach(el => el.classList.remove('active', 'expanded'));
+    document.querySelectorAll('.sub-category-link').forEach(el => {
+        el.style.background = '';
+        el.style.color = '';
+    });
+    // Alt kategori listelerini kapat
+    document.querySelectorAll('.sub-category-list').forEach(el => el.classList.remove('open'));
+    if (element) element.classList.add('active');
+
+    // Session'dan kategori bilgisini temizle
+    sessionStorage.removeItem('selectedCategoryId');
+    sessionStorage.removeItem('productsScrollTop');
+
+    // Başlığı güncelle
+    const titleEl = document.getElementById('sectionTitle');
+    const subtitleEl = document.getElementById('sectionSubtitle');
+    if (titleEl) titleEl.textContent = 'Öne Çıkan Ürünler';
+    if (subtitleEl) subtitleEl.textContent = 'Haftanın en çok tercih edilen ekipmanları';
+
+    // Featured ürünleri yükle
+    loadProducts({ featured: true });
+}
+
+// Section başlığını kategori adına göre güncelle
+function updateSectionTitle(categoryId) {
+    const titleEl = document.getElementById('sectionTitle');
+    const subtitleEl = document.getElementById('sectionSubtitle');
+    if (!titleEl) return;
+
+    const category = findCategory(categoryId, allCategories);
+    if (category) {
+        titleEl.textContent = category.name;
+        subtitleEl.textContent = `${category.name} kategorisindeki ürünler`;
+    } else {
+        // Alt kategorilerde ara (findCategory zaten buluyor)
+        titleEl.textContent = 'Ürünler';
+        subtitleEl.textContent = '';
+    }
 }
 
 function findCategory(id, categories) {
@@ -386,6 +515,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Scroll pozisyonunu kaydet (sayfa yenilendiğinde geri dönmek için)
+    if (grid) {
+        let scrollSaveTimer;
+        grid.addEventListener('scroll', () => {
+            clearTimeout(scrollSaveTimer);
+            scrollSaveTimer = setTimeout(() => {
+                sessionStorage.setItem('productsScrollTop', grid.scrollTop);
+            }, 150);
+        });
+    }
+
     // ===== MOBILE SIDEBAR TOGGLE =====
     const sidebar = document.getElementById('sidebar');
     const hamburgerBtn = document.getElementById('hamburgerBtn');
@@ -423,10 +563,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Close sidebar when a category link is clicked on mobile
+    // Only close if it's a sub-category or a parent without sub-categories
     document.addEventListener('click', (e) => {
-        const catLink = e.target.closest('.category-link, .sub-category-link');
-        if (catLink && window.innerWidth <= 768) {
+        if (window.innerWidth > 768) return;
+
+        const subLink = e.target.closest('.sub-category-link');
+        if (subLink) {
             setTimeout(closeSidebar, 200);
+            return;
+        }
+
+        const catLink = e.target.closest('.category-link');
+        if (catLink) {
+            // Alt kategorisi olan parent'a tıklandıysa sidebar açık kalsın
+            const hasSubList = catLink.nextElementSibling && catLink.nextElementSibling.classList.contains('sub-category-list');
+            if (!hasSubList) {
+                setTimeout(closeSidebar, 200);
+            }
         }
     });
 
