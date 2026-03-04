@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Doğa ve Balık</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logo.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo.webp">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logo.webp">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo.webp">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="stylesheet" href="css/admin.css">
@@ -16,7 +16,7 @@
     <header class="admin-topbar">
         <div class="admin-topbar-left">
             <a href="/" class="admin-logo">
-                <img src="/assets/logo.png" alt="Logo">
+                <img src="/assets/logo.webp" alt="Logo">
                 <span>Doğa ve Balık</span>
             </a>
             <span class="admin-badge">Panel</span>
@@ -116,7 +116,8 @@
                                 <th>Kullanıcı</th>
                                 <th>Puan</th>
                                 <th>Yorum</th>
-                                <th>Tarih</th>
+                                <th>Tarih / Saat</th>
+                                <th>Admin Cevabı</th>
                                 <th>İşlem</th>
                             </tr>
                         </thead>
@@ -195,6 +196,13 @@
                             <!-- Mevcut ve yeni görsellerin önizlemeleri burada gösterilir -->
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-video" style="margin-right:6px;color:#2b6cb0;"></i>Ürün Videosu (MP4, WebM, MOV - Maks. 100MB)</label>
+                        <input type="file" class="form-input" id="pVideo" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo">
+                        <div class="video-preview-container" id="pVideoPreviewContainer">
+                            <!-- Video önizlemesi burada gösterilir -->
+                        </div>
+                    </div>
                     <div class="form-row">
                         <label class="form-checkbox">
                             <input type="checkbox" id="pFeatured"> Öne Çıkan
@@ -253,6 +261,29 @@
                     <input type="hidden" id="cEditId" value="">
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- YORUM CEVAP MODAL -->
+    <div class="modal-overlay" id="replyModal">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3>Yorumu Cevapla</h3>
+                <button class="modal-close" onclick="closeReplyModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div id="replyReviewInfo" style="background:#f7fafc;border-radius:8px;padding:14px;margin-bottom:16px;font-size:13px;">
+                </div>
+                <div class="form-group">
+                    <label>Admin Cevabı *</label>
+                    <textarea class="form-input" id="replyText" rows="4" placeholder="Cevabınızı yazın..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closeReplyModal()">İptal</button>
+                <button type="button" class="btn-save" onclick="submitReply()">Cevabı Kaydet</button>
+                <input type="hidden" id="replyReviewId" value="">
+            </div>
         </div>
     </div>
 

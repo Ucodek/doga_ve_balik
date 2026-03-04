@@ -7,6 +7,9 @@ let adminProducts = [];
 let existingImages = []; // Düzenleme sırasında mevcut görseller
 let removedImages = []; // Silinecek görseller
 let newImageFiles = []; // Yeni seçilen dosyalar
+let existingVideo = null; // Mevcut video yolu
+let newVideoFile = null; // Yeni seçilen video dosyası
+let removeVideoFlag = false; // Video silme isteği
 
 // ===== AUTH CHECK =====
 window.addEventListener('DOMContentLoaded', () => {
@@ -241,6 +244,7 @@ function renderProductsTable(products) {
             <td><img class="table-img" src="${p.image || 'https://via.placeholder.com/48'}" alt="${p.name}"></td>
             <td>
                 <strong>${p.name}</strong>
+                ${p.video ? '<span style="color:#2b6cb0;font-size:11px;margin-left:6px;">🎬 Video</span>' : ''}
                 ${p.isPopular ? '<span style="color:#38a169;font-size:11px;margin-left:6px;">🔥 Popüler</span>' : ''}
                 ${p.isFeatured ? '<span style="color:#2b6cb0;font-size:11px;margin-left:6px;">⭐ Öne Çıkan</span>' : ''}
             </td>
@@ -270,12 +274,21 @@ function openProductModal(product = null) {
     existingImages = [];
     removedImages = [];
     newImageFiles = [];
+    existingVideo = null;
+    newVideoFile = null;
+    removeVideoFlag = false;
     document.getElementById('pImagePreviewContainer').innerHTML = '';
+    document.getElementById('pVideoPreviewContainer').innerHTML = '';
     
     // File input'a change event ekle (bir kere)
     const fileInput = document.getElementById('pImage');
     fileInput.value = '';
     fileInput.onchange = handleImageSelect;
+
+    // Video input
+    const videoInput = document.getElementById('pVideo');
+    videoInput.value = '';
+    videoInput.onchange = handleVideoSelect;
 
     if (product) {
         document.getElementById('productModalTitle').textContent = 'Ürün Düzenle';
@@ -298,6 +311,12 @@ function openProductModal(product = null) {
             existingImages = [product.image];
         }
         renderImagePreviews();
+
+        // Mevcut video
+        if (product.video) {
+            existingVideo = product.video;
+            renderVideoPreview();
+        }
     } else {
         document.getElementById('productModalTitle').textContent = 'Yeni Ürün Ekle';
     }
@@ -365,6 +384,60 @@ function removeNewImage(i) {
     renderImagePreviews();
 }
 
+// ===== VİDEO İŞLEMLERİ =====
+function handleVideoSelect(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 100MB limit kontrolü
+    if (file.size > 100 * 1024 * 1024) {
+        alert('Video dosyası 100MB\'dan büyük olamaz.');
+        e.target.value = '';
+        return;
+    }
+
+    newVideoFile = file;
+    removeVideoFlag = false;
+    renderVideoPreview();
+    e.target.value = '';
+}
+
+function renderVideoPreview() {
+    const container = document.getElementById('pVideoPreviewContainer');
+    container.innerHTML = '';
+
+    let videoSrc = null;
+    let label = '';
+
+    if (newVideoFile) {
+        videoSrc = URL.createObjectURL(newVideoFile);
+        label = newVideoFile.name;
+    } else if (existingVideo && !removeVideoFlag) {
+        videoSrc = existingVideo;
+        label = existingVideo.split('/').pop();
+    }
+
+    if (!videoSrc) return;
+
+    container.innerHTML = `
+        <div class="video-preview-item">
+            <video src="${videoSrc}" class="video-preview-player" controls preload="metadata"></video>
+            <div class="video-preview-info">
+                <span class="video-preview-name"><i class="fas fa-film"></i> ${label}</span>
+                <button type="button" class="img-remove-btn video-remove-btn" onclick="removeVideo()" title="Videoyu Kaldır">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+    `;
+}
+
+function removeVideo() {
+    newVideoFile = null;
+    removeVideoFlag = true;
+    document.getElementById('pVideoPreviewContainer').innerHTML = '';
+}
+
 function closeProductModal() {
     document.getElementById('productModal').classList.remove('open');
 }
@@ -406,10 +479,18 @@ async function handleProductSubmit(e) {
         formData.append('images', file);
     });
 
+    // Video: yeni video dosyası ekle
+    if (newVideoFile) {
+        formData.append('video', newVideoFile);
+    }
+
     // Düzenleme modunda: mevcut görselleri ve silinen görselleri gönder
     if (editId) {
         formData.append('existingImages', JSON.stringify(existingImages));
         formData.append('removedImages', JSON.stringify(removedImages));
+        if (removeVideoFlag) {
+            formData.append('removeVideo', 'true');
+        }
     }
 
     try {
@@ -527,17 +608,32 @@ function renderReviewsTable(reviews) {
     tbody.innerHTML = '';
 
     if (reviews.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#a0aec0;padding:40px;">Henüz yorum yok</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#a0aec0;padding:40px;">Henüz yorum yok</td></tr>';
         return;
     }
 
     reviews.forEach(r => {
         const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
-        const date = new Date(r.createdAt).toLocaleDateString('tr-TR');
+        const dateObj = new Date(r.createdAt);
+        const date = dateObj.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' });
+        const time = dateObj.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
         const productName = r.product ? r.product.name : 'Silinmiş Ürün';
         const productImg = r.product && r.product.image ? r.product.image : 'https://via.placeholder.com/40';
         const userName = r.user ? r.user.fullName : 'Silinmiş Kullanıcı';
         const commentShort = r.comment.length > 80 ? r.comment.substring(0, 80) + '...' : r.comment;
+
+        // Admin cevabı
+        let replyHtml = '';
+        if (r.adminReply) {
+            const replyDate = new Date(r.adminReplyAt).toLocaleDateString('tr-TR', { year: 'numeric', month: 'short', day: 'numeric' });
+            const replyShort = r.adminReply.length > 60 ? r.adminReply.substring(0, 60) + '...' : r.adminReply;
+            replyHtml = `<div style="background:#f0fff4;border-radius:6px;padding:8px 10px;font-size:12px;color:#276749;" title="${r.adminReply.replace(/"/g, '&quot;')}">
+                <i class="fas fa-reply" style="margin-right:4px;"></i>${replyShort}
+                <div style="color:#a0aec0;font-size:11px;margin-top:4px;">${replyDate}</div>
+            </div>`;
+        } else {
+            replyHtml = `<span style="color:#cbd5e0;font-size:12px;font-style:italic;">Cevaplanmadı</span>`;
+        }
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -550,15 +646,63 @@ function renderReviewsTable(reviews) {
             <td><strong>${userName}</strong></td>
             <td><span style="color:#f6ad55;font-size:14px;">${stars}</span></td>
             <td style="max-width:250px;font-size:13px;color:#4a5568;" title="${r.comment.replace(/"/g, '&quot;')}">${commentShort}</td>
-            <td style="font-size:12px;color:#a0aec0;">${date}</td>
+            <td style="font-size:12px;color:#a0aec0;white-space:nowrap;">
+                <div>${date}</div>
+                <div style="color:#718096;font-weight:500;">${time}</div>
+            </td>
+            <td style="max-width:200px;">${replyHtml}</td>
             <td>
                 <div class="table-actions">
+                    <button class="btn-edit" onclick='openReplyModal(${JSON.stringify({id: r.id, comment: r.comment, userName, productName, rating: r.rating, adminReply: r.adminReply || ""}).replace(/'/g, "&#39;")})' title="Cevapla"><i class="fas fa-reply"></i></button>
                     <button class="btn-delete" onclick="deleteReview(${r.id})" title="Yorumu Sil"><i class="fas fa-trash"></i></button>
                 </div>
             </td>
         `;
         tbody.appendChild(tr);
     });
+}
+
+// ===== YORUM CEVAP =====
+function openReplyModal(reviewData) {
+    document.getElementById('replyReviewId').value = reviewData.id;
+    document.getElementById('replyText').value = reviewData.adminReply || '';
+    const stars = '★'.repeat(reviewData.rating) + '☆'.repeat(5 - reviewData.rating);
+    document.getElementById('replyReviewInfo').innerHTML = `
+        <div style="margin-bottom:6px;"><strong>${reviewData.userName}</strong> — <span style="color:#f6ad55;">${stars}</span></div>
+        <div style="color:#4a5568;"><strong>${reviewData.productName}</strong></div>
+        <div style="margin-top:8px;color:#718096;font-style:italic;">"${reviewData.comment.length > 150 ? reviewData.comment.substring(0,150) + '...' : reviewData.comment}"</div>
+    `;
+    document.getElementById('replyModal').classList.add('open');
+}
+
+function closeReplyModal() {
+    document.getElementById('replyModal').classList.remove('open');
+}
+
+async function submitReply() {
+    const reviewId = document.getElementById('replyReviewId').value;
+    const reply = document.getElementById('replyText').value.trim();
+
+    if (!reply) {
+        alert('Lütfen bir cevap yazın.');
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_BASE}/reviews/${reviewId}/reply`, {
+            method: 'PUT',
+            headers: { ...authHeaders(), 'Content-Type': 'application/json' },
+            body: JSON.stringify({ reply })
+        });
+        const json = await res.json();
+        if (json.success) {
+            closeReplyModal();
+            loadAdminReviews();
+            showAdminToast('Cevap kaydedildi');
+        } else {
+            alert(json.message);
+        }
+    } catch (e) { console.error(e); }
 }
 
 async function deleteReview(id) {

@@ -579,6 +579,56 @@ textarea.form-input {
     border-radius: 4px;
 }
 
+/* Video preview */
+.video-preview-container {
+    margin-top: 10px;
+}
+
+.video-preview-item {
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    overflow: hidden;
+    background: #0d1117;
+    max-width: 360px;
+}
+
+.video-preview-player {
+    width: 100%;
+    max-height: 200px;
+    display: block;
+    background: #000;
+}
+
+.video-preview-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    background: #f7fafc;
+    border-top: 1px solid var(--border-color);
+}
+
+.video-preview-name {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 280px;
+}
+
+.video-preview-name i {
+    color: #2b6cb0;
+}
+
+.video-remove-btn {
+    position: static !important;
+    flex-shrink: 0;
+}
+
 .btn-cancel {
     padding: 9px 20px;
     border: 1px solid var(--border-color);

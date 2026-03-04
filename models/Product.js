@@ -83,6 +83,11 @@ const Product = sequelize.define('Product', {
         defaultValue: false,
         comment: 'Popüler ürün mü? Admin tarafından seçilir, hero bölümünde gösterilir.'
     },
+    video: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'Ürün videosu dosya yolu'
+    },
     isActive: {
         type: DataTypes.BOOLEAN,
         defaultValue: true

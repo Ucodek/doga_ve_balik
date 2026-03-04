@@ -4,6 +4,7 @@ const Review = require('../models/Review');
 const Product = require('../models/Product');
 const User = require('../models/User');
 const { authMiddleware, adminMiddleware } = require('../middleware/auth');
+const { sendNewReviewNotification } = require('../utils/mailer');
 
 // GET /api/reviews - Tüm yorumları getir (Admin)
 router.get('/', authMiddleware, adminMiddleware, async (req, res) => {
@@ -129,7 +130,46 @@ router.post('/:productId', authMiddleware, async (req, res) => {
             }]
         });
 
+        // E-posta bildirimi gönder (async, response'u bekletme)
+        const user = await User.findByPk(req.user.id);
+        const reviewDate = new Date().toLocaleString('tr-TR', {
+            year: 'numeric', month: 'long', day: 'numeric',
+            hour: '2-digit', minute: '2-digit'
+        });
+        sendNewReviewNotification({
+            productName: product.name,
+            userName: user ? user.fullName : 'Bilinmeyen',
+            rating: parseInt(rating),
+            comment: comment.trim(),
+            reviewDate
+        }).catch(err => console.error('Mail gönderilemedi:', err));
+
         res.status(201).json({ success: true, data: reviewWithUser });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// PUT /api/reviews/:id/reply - Admin cevabı ekle
+router.put('/:id/reply', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { reply } = req.body;
+        const review = await Review.findByPk(req.params.id);
+
+        if (!review) {
+            return res.status(404).json({ success: false, message: 'Yorum bulunamadı' });
+        }
+
+        if (!reply || !reply.trim()) {
+            return res.status(400).json({ success: false, message: 'Cevap metni zorunludur' });
+        }
+
+        await review.update({
+            adminReply: reply.trim(),
+            adminReplyAt: new Date()
+        });
+
+        res.json({ success: true, message: 'Cevap kaydedildi', data: review });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

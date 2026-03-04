@@ -22,16 +22,24 @@ const storage = multer.diskStorage({
 const upload = multer({
     storage: storage,
     fileFilter: (req, file, cb) => {
-        const allowedTypes = /jpeg|jpg|png|gif|webp/;
-        const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-        const mimetype = allowedTypes.test(file.mimetype);
-        if (extname && mimetype) {
+        const imageTypes = /jpeg|jpg|png|gif|webp/;
+        const videoTypes = /mp4|webm|mov|avi/;
+        const ext = path.extname(file.originalname).toLowerCase();
+        const isImage = imageTypes.test(ext) && imageTypes.test(file.mimetype);
+        const isVideo = videoTypes.test(ext) || file.mimetype.startsWith('video/');
+        if (isImage || isVideo) {
             return cb(null, true);
         }
-        cb(new Error('Sadece görsel dosyaları yükleyebilirsiniz'));
+        cb(new Error('Sadece görsel veya video dosyaları yükleyebilirsiniz'));
     },
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+    limits: { fileSize: 100 * 1024 * 1024 } // 100MB limit (video için)
 });
+
+// Upload middleware: images + video
+const uploadFields = upload.fields([
+    { name: 'images', maxCount: 10 },
+    { name: 'video', maxCount: 1 }
+]);
 
 // GET /api/products - Tüm ürünleri getir (filtreleme destekli)
 router.get('/', async (req, res) => {
@@ -91,7 +99,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST /api/products - Yeni ürün ekle (mobil uygulamadan)
-router.post('/', upload.array('images', 10), async (req, res) => {
+router.post('/', uploadFields, async (req, res) => {
     try {
         const {
             name, description, price, oldPrice,
@@ -114,13 +122,14 @@ router.post('/', upload.array('images', 10), async (req, res) => {
 
         // Çoklu görsel işleme
         let imagePaths = [];
-        if (req.files && req.files.length > 0) {
-            imagePaths = req.files.map(f => `/uploads/${f.filename}`);
+        if (req.files && req.files.images && req.files.images.length > 0) {
+            imagePaths = req.files.images.map(f => `/uploads/${f.filename}`);
         }
 
-        // Geriye uyumluluk: tek görsel de destekle
-        if (req.file) {
-            imagePaths = [`/uploads/${req.file.filename}`];
+        // Video işleme
+        let videoPath = null;
+        if (req.files && req.files.video && req.files.video.length > 0) {
+            videoPath = `/uploads/${req.files.video[0].filename}`;
         }
 
         const product = await Product.create({
@@ -130,6 +139,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
             oldPrice: (oldPrice && oldPrice !== '' && !isNaN(parseFloat(oldPrice))) ? parseFloat(oldPrice) : null,
             image: imagePaths.length > 0 ? imagePaths[0] : null,
             images: imagePaths,
+            video: videoPath,
             rating: rating ? parseFloat(rating) : 0,
             reviewCount: reviewCount ? parseInt(reviewCount) : 0,
             badge: badge || null,
@@ -147,7 +157,7 @@ router.post('/', upload.array('images', 10), async (req, res) => {
 });
 
 // PUT /api/products/:id - Ürün güncelle (mobil uygulamadan)
-router.put('/:id', upload.array('images', 10), async (req, res) => {
+router.put('/:id', uploadFields, async (req, res) => {
     try {
         const product = await Product.findByPk(req.params.id);
         if (!product) {
@@ -158,7 +168,7 @@ router.put('/:id', upload.array('images', 10), async (req, res) => {
             name, description, price, oldPrice,
             rating, reviewCount, badge, badgeColor,
             stock, isFeatured, isPopular, isActive, categoryId,
-            existingImages, removedImages
+            existingImages, removedImages, removeVideo
         } = req.body;
 
         const updateData = {};
@@ -202,13 +212,36 @@ router.put('/:id', upload.array('images', 10), async (req, res) => {
         }
 
         // Yeni yüklenen görselleri ekle
-        if (req.files && req.files.length > 0) {
-            const newPaths = req.files.map(f => `/uploads/${f.filename}`);
+        if (req.files && req.files.images && req.files.images.length > 0) {
+            const newPaths = req.files.images.map(f => `/uploads/${f.filename}`);
             currentImages = [...currentImages, ...newPaths];
         }
 
         updateData.images = currentImages;
         updateData.image = currentImages.length > 0 ? currentImages[0] : null;
+
+        // Video işleme
+        if (req.files && req.files.video && req.files.video.length > 0) {
+            // Eski videoyu sil
+            if (product.video) {
+                const oldVideoPath = path.join(__dirname, '..', product.video);
+                if (fs.existsSync(oldVideoPath)) {
+                    fs.unlinkSync(oldVideoPath);
+                }
+            }
+            updateData.video = `/uploads/${req.files.video[0].filename}`;
+        }
+
+        // Video silme isteği
+        if (removeVideo === 'true') {
+            if (product.video) {
+                const oldVideoPath = path.join(__dirname, '..', product.video);
+                if (fs.existsSync(oldVideoPath)) {
+                    fs.unlinkSync(oldVideoPath);
+                }
+            }
+            updateData.video = null;
+        }
 
         await product.update(updateData);
         res.json({ success: true, data: product });

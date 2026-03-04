@@ -85,6 +85,28 @@ async function startServer() {
             }
         } catch (e) { /* tablo yoksa sync zaten oluşturur */ }
 
+        // Products tablosuna video sütunu ekle
+        try {
+            const productsInfo2 = await queryInterface.describeTable('Products');
+            if (!productsInfo2.video) {
+                await queryInterface.addColumn('Products', 'video', { type: require('sequelize').DataTypes.STRING, allowNull: true });
+                console.log('Products tablosuna video sütunu eklendi.');
+            }
+        } catch (e) { /* tablo yoksa sync zaten oluşturur */ }
+
+        // Reviews tablosuna adminReply ve adminReplyAt sütunları ekle
+        try {
+            const reviewsInfo = await queryInterface.describeTable('Reviews');
+            if (!reviewsInfo.adminReply) {
+                await queryInterface.addColumn('Reviews', 'adminReply', { type: require('sequelize').DataTypes.TEXT, allowNull: true });
+                console.log('Reviews tablosuna adminReply sütunu eklendi.');
+            }
+            if (!reviewsInfo.adminReplyAt) {
+                await queryInterface.addColumn('Reviews', 'adminReplyAt', { type: require('sequelize').DataTypes.DATE, allowNull: true });
+                console.log('Reviews tablosuna adminReplyAt sütunu eklendi.');
+            }
+        } catch (e) { /* tablo yoksa sync zaten oluşturur */ }
+
         console.log('Tablolar senkronize edildi.');
 
         // Seed data ekle (eğer boşsa)

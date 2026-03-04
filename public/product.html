@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ürün Detay - Doğa ve Balık</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo.png">
-    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logo.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo.webp">
+    <link rel="icon" type="image/png" sizes="96x96" href="/assets/logo.webp">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/logo.webp">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
@@ -266,6 +266,37 @@
             max-height: 450px;
             object-fit: contain;
             border-radius: var(--radius-md);
+        }
+
+        /* Product Video */
+        .product-video-section {
+            margin-top: 20px;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            background: #000;
+            position: relative;
+        }
+
+        .product-video-section video {
+            width: 100%;
+            max-height: 400px;
+            display: block;
+            border-radius: var(--radius-md);
+        }
+
+        .product-video-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 10px;
+        }
+
+        .product-video-label i {
+            color: #e53e3e;
+            font-size: 16px;
         }
 
         .product-detail-badge {
@@ -695,6 +726,42 @@
             margin-left: 52px;
         }
 
+        .review-admin-reply {
+            margin-left: 52px;
+            margin-top: 12px;
+            background: #f0fff4;
+            border-left: 3px solid #38a169;
+            border-radius: 0 8px 8px 0;
+            padding: 12px 16px;
+        }
+
+        .review-admin-reply-header {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #276749;
+        }
+
+        .review-admin-reply-header i {
+            font-size: 11px;
+        }
+
+        .review-admin-reply-date {
+            font-size: 11px;
+            color: #a0aec0;
+            font-weight: 400;
+            margin-left: auto;
+        }
+
+        .review-admin-reply-text {
+            font-size: 13px;
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
         .review-delete-btn {
             background: none;
             border: none;
@@ -938,7 +1005,7 @@
                 <span>Geri Dön</span>
             </a>
             <a href="/" class="topbar-logo">
-                <img src="/assets/logo.png" alt="Logo">
+                <img src="/assets/logo.webp" alt="Logo">
                 <span>Doğa ve Balık</span>
             </a>
         </div>
@@ -1133,11 +1200,28 @@
                 `;
             }
 
+            // Video varsa HTML
+            let videoHtml = '';
+            if (product.video) {
+                videoHtml = `
+                    <div style="margin-top: 20px;">
+                        <div class="product-video-label"><i class="fas fa-play-circle"></i> Ürün Videosu</div>
+                        <div class="product-video-section">
+                            <video controls preload="metadata" playsinline>
+                                <source src="${product.video}" type="video/mp4">
+                                Tarayıcınız video oynatmayı desteklemiyor.
+                            </video>
+                        </div>
+                    </div>
+                `;
+            }
+
             document.getElementById('productDetail').innerHTML = `
                 <div class="product-detail-grid">
                     <div class="product-image-section">
                         ${imageHtml}
                         ${badgeHtml}
+                        ${videoHtml}
                     </div>
                     <div class="product-info-section">
                         ${product.category ? `<span class="product-category-tag">${product.category.name}</span>` : ''}
@@ -1357,13 +1441,37 @@
                 reviewsHtml = reviews.map(review => {
                     const initial = review.user ? review.user.fullName.charAt(0).toUpperCase() : '?';
                     const name = review.user ? review.user.fullName : 'Anonim';
-                    const date = new Date(review.createdAt).toLocaleDateString('tr-TR', {
+                    const dateObj = new Date(review.createdAt);
+                    const date = dateObj.toLocaleDateString('tr-TR', {
                         year: 'numeric', month: 'long', day: 'numeric'
+                    });
+                    const time = dateObj.toLocaleTimeString('tr-TR', {
+                        hour: '2-digit', minute: '2-digit'
                     });
                     const canDelete = currentUser && (currentUser.id === review.userId || currentUser.role === 'admin');
                     const deleteBtn = canDelete
                         ? `<button class="review-delete-btn" onclick="deleteReview(${review.id})"><i class="fas fa-trash"></i> Sil</button>`
                         : '';
+
+                    // Admin cevabı
+                    let adminReplyHtml = '';
+                    if (review.adminReply) {
+                        const replyDate = new Date(review.adminReplyAt).toLocaleDateString('tr-TR', {
+                            year: 'numeric', month: 'long', day: 'numeric'
+                        });
+                        const replyTime = new Date(review.adminReplyAt).toLocaleTimeString('tr-TR', {
+                            hour: '2-digit', minute: '2-digit'
+                        });
+                        adminReplyHtml = `
+                            <div class="review-admin-reply">
+                                <div class="review-admin-reply-header">
+                                    <i class="fas fa-store"></i> Mağaza Yanıtı
+                                    <span class="review-admin-reply-date">${replyDate} ${replyTime}</span>
+                                </div>
+                                <p class="review-admin-reply-text">${escapeHtml(review.adminReply)}</p>
+                            </div>
+                        `;
+                    }
 
                     return `
                         <div class="review-item" id="review-${review.id}">
@@ -1371,7 +1479,7 @@
                                 <div class="review-avatar">${initial}</div>
                                 <div class="review-user-info">
                                     <div class="review-user-name">${name}</div>
-                                    <div class="review-date">${date}</div>
+                                    <div class="review-date">${date} • ${time}</div>
                                 </div>
                                 <div class="review-item-stars">
                                     ${renderStars(review.rating, 'small')}
@@ -1379,6 +1487,7 @@
                                 ${deleteBtn}
                             </div>
                             <p class="review-comment">${escapeHtml(review.comment)}</p>
+                            ${adminReplyHtml}
                         </div>
                     `;
                 }).join('');
