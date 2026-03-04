@@ -64,9 +64,10 @@ router.get('/:shareCode', async (req, res) => {
         // Ürün detaylarını getir
         const productIds = list.items || [];
         let products = [];
+        let deletedProductIds = [];
 
         if (productIds.length > 0) {
-            products = await Product.findAll({
+            const foundProducts = await Product.findAll({
                 where: { id: productIds },
                 include: [{
                     model: Category,
@@ -76,10 +77,15 @@ router.get('/:shareCode', async (req, res) => {
                 attributes: ['id', 'name', 'description', 'price', 'oldPrice', 'image', 'rating', 'reviewCount', 'badge', 'badgeColor', 'stock']
             });
 
-            // Orijinal sıraya göre sırala
-            products = productIds
-                .map(id => products.find(p => p.id === id))
-                .filter(Boolean);
+            // Orijinal sıraya göre sırala, silinen ürünleri tespit et
+            productIds.forEach(id => {
+                const found = foundProducts.find(p => p.id === id);
+                if (found) {
+                    products.push(found);
+                } else {
+                    deletedProductIds.push(id);
+                }
+            });
         }
 
         res.json({
@@ -90,6 +96,7 @@ router.get('/:shareCode', async (req, res) => {
                 shareCode: list.shareCode,
                 items: list.items,
                 products: products,
+                deletedProductIds: deletedProductIds,
                 createdAt: list.createdAt
             }
         });

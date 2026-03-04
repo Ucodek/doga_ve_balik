@@ -1753,6 +1753,27 @@ body {
     color: white;
 }
 
+/* Silinen ürün - liste paneli */
+.list-item-deleted {
+    background: #fff5f5;
+    border: 1px dashed #e53e3e;
+    align-items: center;
+}
+.list-item-deleted-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    background: #fed7d7;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.list-item-deleted-icon i {
+    font-size: 22px;
+    color: #e53e3e;
+}
+
 /* Liste Footer */
 .list-panel-footer {
     padding: 16px 20px;

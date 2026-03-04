@@ -691,7 +691,7 @@ function closeListPanel() {
 }
 
 // Liste panelini doldur
-function renderListPanel() {
+async function renderListPanel() {
     const body = document.getElementById('listPanelBody');
     const footer = document.getElementById('listPanelFooter');
     const shareResult = document.getElementById('listShareResult');
@@ -713,6 +713,23 @@ function renderListPanel() {
 
     // Ürün detaylarını productlardan bul
     const allKnownProducts = [...allProducts, ...popularProducts];
+    
+    // Bulunamayan ürün ID'lerini tespit et
+    const missingIds = myList.filter(id => !allKnownProducts.find(p => p.id === id));
+    
+    // Bulunamayan ürünler için API'den kontrol et (silindi mi?)
+    let deletedIds = [];
+    if (missingIds.length > 0) {
+        try {
+            const checks = await Promise.all(missingIds.map(id =>
+                fetch(`/api/products/${id}`).then(r => ({ id, ok: r.ok })).catch(() => ({ id, ok: false }))
+            ));
+            deletedIds = checks.filter(c => !c.ok).map(c => c.id);
+        } catch (e) {
+            deletedIds = missingIds;
+        }
+    }
+
     let totalPrice = 0;
     let cardsHtml = '';
 
@@ -732,6 +749,21 @@ function renderListPanel() {
                         <div class="list-item-price">${formatPrice(product.price)}<span class="currency">₺</span></div>
                     </div>
                     <button class="list-item-remove" onclick="removeFromList(${product.id})" title="Çıkar">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        } else if (deletedIds.includes(productId)) {
+            // Ürün silindi
+            cardsHtml += `
+                <div class="list-item-card list-item-deleted">
+                    <div class="list-item-deleted-icon">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="list-item-info">
+                        <div class="list-item-name" style="color:#c53030;font-size:12px;">Bu ürün satıcı tarafından kaldırıldı</div>
+                    </div>
+                    <button class="list-item-remove" onclick="removeFromList(${productId})" title="Çıkar">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>

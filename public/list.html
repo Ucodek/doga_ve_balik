@@ -177,6 +177,43 @@
             border-color: transparent;
             transform: translateY(-2px);
         }
+        .product-list-item.deleted-item {
+            background: #fff5f5;
+            border: 1px dashed #e53e3e;
+            cursor: default;
+            opacity: 0.85;
+            align-items: center;
+        }
+        .product-list-item.deleted-item:hover {
+            box-shadow: none;
+            border-color: #e53e3e;
+            transform: none;
+        }
+        .deleted-item-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            background: #fed7d7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .deleted-item-icon i {
+            font-size: 32px;
+            color: #e53e3e;
+        }
+        .deleted-item-text {
+            font-weight: 600;
+            color: #c53030;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+        .deleted-item-sub {
+            font-size: 13px;
+            color: #e53e3e;
+            opacity: 0.7;
+        }
         .product-list-img {
             width: 100px;
             height: 100px;
@@ -322,6 +359,9 @@
             .list-meta h1 { font-size: 18px; }
             .product-list-item { padding: 12px; gap: 12px; }
             .product-list-img { width: 80px; height: 80px; }
+            .deleted-item-icon { width: 80px; height: 80px; }
+            .deleted-item-icon i { font-size: 24px; }
+            .deleted-item-text { font-size: 13px; }
             .product-list-name { font-size: 14px; }
             .product-list-price { font-size: 16px; }
             .total-price-bar { padding: 12px 16px; }
@@ -396,9 +436,19 @@
     function renderList(data) {
         const content = document.getElementById('content');
         const products = data.products || [];
+        const deletedProductIds = data.deletedProductIds || [];
         const totalPrice = products.reduce((sum, p) => sum + parseFloat(p.price || 0), 0);
+        const totalItemCount = products.length + deletedProductIds.length;
 
         const shareUrl = window.location.href;
+
+        // Orijinal sırada ürünleri ve silinen ürünleri birleştir
+        const allItems = (data.items || []).map(id => {
+            const product = products.find(p => p.id === id);
+            if (product) return { type: 'product', data: product };
+            if (deletedProductIds.includes(id)) return { type: 'deleted', id };
+            return null;
+        }).filter(Boolean);
 
         content.innerHTML = `
             <div class="list-info">
@@ -408,7 +458,7 @@
                     </div>
                     <div class="list-meta">
                         <h1>${escapeHtml(data.name)}</h1>
-                        <p>${products.length} ürün · ${formatDate(data.createdAt)}</p>
+                        <p>${totalItemCount} ürün · ${formatDate(data.createdAt)}</p>
                     </div>
                     <div class="list-share-actions">
                         <button class="share-btn copy" onclick="copyLink()">
@@ -424,13 +474,18 @@
             </div>
 
             <div class="list-products">
-                ${products.length > 0 ? `
-                    <div class="total-price-bar">
-                        <span class="total-label">Toplam Tutar (${products.length} ürün)</span>
-                        <span class="total-value">${formatPrice(totalPrice)}₺</span>
-                    </div>
-                    <div class="products-count">${products.length} ürün listeleniyor</div>
-                    ${products.map(p => renderProductItem(p)).join('')}
+                ${allItems.length > 0 ? `
+                    ${products.length > 0 ? `
+                        <div class="total-price-bar">
+                            <span class="total-label">Toplam Tutar (${products.length} ürün)</span>
+                            <span class="total-value">${formatPrice(totalPrice)}₺</span>
+                        </div>
+                    ` : ''}
+                    <div class="products-count">${totalItemCount} ürün listeleniyor</div>
+                    ${allItems.map(item => {
+                        if (item.type === 'product') return renderProductItem(item.data);
+                        return renderDeletedItem();
+                    }).join('')}
                 ` : `
                     <div class="empty-state">
                         <i class="fas fa-box-open"></i>
@@ -469,6 +524,20 @@
                     </div>
                 </div>
             </a>
+        `;
+    }
+
+    function renderDeletedItem() {
+        return `
+            <div class="product-list-item deleted-item">
+                <div class="deleted-item-icon">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <div class="product-list-info">
+                    <div class="deleted-item-text">Bu ürün satıcı tarafından kaldırıldı</div>
+                    <div class="deleted-item-sub">Bu ürün artık mevcut değil</div>
+                </div>
+            </div>
         `;
     }
 
