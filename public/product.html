@@ -417,6 +417,70 @@
         .stock-dot.low-stock { background: #dd6b20; }
         .stock-dot.out-of-stock { background: var(--accent-red); }
 
+        /* Ürün Aksiyon Butonları */
+        .product-action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .add-to-list-btn {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid var(--accent-green);
+            background: white;
+            color: var(--accent-green);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .add-to-list-btn:hover {
+            background: var(--accent-green);
+            color: white;
+        }
+        .add-to-list-btn.in-list {
+            background: var(--accent-green);
+            color: white;
+        }
+        .add-to-list-btn.in-list:hover {
+            background: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+        .share-product-btn {
+            padding: 12px 20px;
+            border: none;
+            background: #25d366;
+            color: white;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .share-product-btn:hover {
+            background: #128c7e;
+        }
+
+        @media (max-width: 768px) {
+            .product-action-buttons {
+                margin-bottom: 16px;
+            }
+            .add-to-list-btn, .share-product-btn {
+                padding: 10px 14px;
+                font-size: 13px;
+            }
+        }
+
         .topbar-user-area {
             display: flex;
             align-items: center;
@@ -1242,6 +1306,17 @@
                             <span>${stockText}</span>
                         </div>
 
+                        <div class="product-action-buttons">
+                            <button class="add-to-list-btn ${isInMyList(product.id) ? 'in-list' : ''}" onclick="toggleProductInList(${product.id})">
+                                <i class="fas ${isInMyList(product.id) ? 'fa-check' : 'fa-plus'}"></i>
+                                <span>${isInMyList(product.id) ? 'Listede' : 'Listeye Ekle'}</span>
+                            </button>
+                            <button class="share-product-btn" onclick="shareProductViaWhatsApp(${product.id}, '${product.name.replace(/'/g, "\\'")}')">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>Paylaş</span>
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             `;
@@ -1660,6 +1735,45 @@
             document.getElementById('toastText').textContent = message;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ===== LİSTE FONKSİYONLARI =====
+        function getMyList() {
+            return JSON.parse(localStorage.getItem('myList') || '[]');
+        }
+
+        function isInMyList(productId) {
+            return getMyList().includes(productId);
+        }
+
+        function toggleProductInList(productId) {
+            let list = getMyList();
+            const btn = document.querySelector('.add-to-list-btn');
+            const index = list.indexOf(productId);
+
+            if (index > -1) {
+                list.splice(index, 1);
+                if (btn) {
+                    btn.classList.remove('in-list');
+                    btn.innerHTML = '<i class="fas fa-plus"></i><span>Listeye Ekle</span>';
+                }
+                showToast('Ürün listeden çıkarıldı');
+            } else {
+                list.push(productId);
+                if (btn) {
+                    btn.classList.add('in-list');
+                    btn.innerHTML = '<i class="fas fa-check"></i><span>Listede</span>';
+                }
+                showToast('Ürün listeye eklendi');
+            }
+
+            localStorage.setItem('myList', JSON.stringify(list));
+        }
+
+        function shareProductViaWhatsApp(productId, productName) {
+            const url = encodeURIComponent(window.location.href);
+            const text = encodeURIComponent(`${productName} - Bu ürüne göz at!`);
+            window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
         }
     </script>
 </body>

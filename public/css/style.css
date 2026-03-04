@@ -1453,3 +1453,379 @@ body {
 .toast .toast-icon {
     color: var(--accent-green);
 }
+
+/* ===== LİSTE BUTONU ===== */
+.list-toggle-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    background: white;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.list-toggle-btn:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    background: rgba(56, 161, 105, 0.05);
+}
+.list-toggle-btn .list-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--accent-red);
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+}
+
+/* ===== LİSTE PANELİ ===== */
+.list-panel-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    z-index: 998;
+}
+.list-panel-overlay.active {
+    display: block;
+}
+.list-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 380px;
+    max-width: 90vw;
+    height: 100vh;
+    background: white;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+    transition: right 0.3s ease;
+}
+.list-panel.open {
+    right: 0;
+}
+.list-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.list-panel-header h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.list-panel-header h3 i {
+    color: var(--accent-green);
+}
+.list-panel-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: #f7fafc;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.list-panel-close:hover {
+    background: #edf2f7;
+    color: var(--accent-red);
+}
+.list-panel-name-row {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+.list-panel-name-row input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 600;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.2s;
+}
+.list-panel-name-row input:focus {
+    border-color: var(--accent-green);
+}
+.list-panel-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 20px;
+}
+.list-panel-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-light);
+}
+.list-panel-empty i {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+}
+.list-panel-empty p {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--text-secondary);
+}
+.list-panel-empty span {
+    font-size: 12px;
+}
+
+/* Liste Ürün Kartı */
+.list-item-card {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    background: #f7fafc;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    position: relative;
+}
+.list-item-img {
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    cursor: pointer;
+}
+.list-item-info {
+    flex: 1;
+    min-width: 0;
+}
+.list-item-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+.list-item-name:hover {
+    color: var(--accent-green);
+}
+.list-item-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+.list-item-price .currency {
+    color: var(--accent-green);
+    font-size: 12px;
+}
+.list-item-remove {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: rgba(229, 62, 62, 0.1);
+    color: var(--accent-red);
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+.list-item-remove:hover {
+    background: var(--accent-red);
+    color: white;
+}
+
+/* Liste Footer */
+.list-panel-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color);
+    background: #fafafa;
+}
+.list-total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.list-total-row span:first-child {
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+.list-total-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent-green-dark);
+}
+.list-share-btn {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    background: var(--accent-green);
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: background 0.2s;
+}
+.list-share-btn:hover {
+    background: var(--accent-green-dark);
+}
+.list-share-btn:disabled {
+    background: var(--text-light);
+    cursor: not-allowed;
+}
+.list-share-result {
+    margin-top: 12px;
+}
+.share-link-box {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+.share-link-box input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    font-size: 12px;
+    font-family: monospace;
+    color: var(--text-primary);
+    background: white;
+    outline: none;
+}
+.share-link-box button {
+    width: 40px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.share-link-box button:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+}
+.share-buttons {
+    display: flex;
+    gap: 8px;
+}
+.share-buttons button {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.share-wa-btn {
+    background: #25d366;
+    color: white;
+}
+.share-wa-btn:hover { background: #128c7e; }
+.share-copy-btn {
+    background: #4a5568;
+    color: white;
+}
+.share-copy-btn:hover { background: #2d3748; }
+
+/* Ürün kartındaki listeye ekle butonu */
+.product-add-list-btn {
+    width: 34px;
+    height: 34px;
+    border: 1px solid var(--border-color);
+    background: white;
+    border-radius: 8px;
+    color: var(--text-light);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+.product-add-list-btn:hover {
+    border-color: var(--accent-green);
+    color: var(--accent-green);
+    background: rgba(56, 161, 105, 0.05);
+}
+.product-add-list-btn.in-list {
+    background: var(--accent-green);
+    border-color: var(--accent-green);
+    color: white;
+}
+.product-add-list-btn.in-list:hover {
+    background: var(--accent-red);
+    border-color: var(--accent-red);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .list-toggle-btn {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+        border-radius: 8px;
+    }
+    .list-toggle-btn .list-badge {
+        min-width: 16px;
+        height: 16px;
+        font-size: 9px;
+        top: -4px;
+        right: -4px;
+    }
+    .list-panel {
+        width: 100%;
+        max-width: 100vw;
+    }
+    .product-add-list-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+        border-radius: 6px;
+    }
+}

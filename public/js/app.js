@@ -6,6 +6,10 @@ let allProducts = [];
 let allCategories = [];
 let popularProducts = [];
 
+// ===== LİSTE STATE =====
+let myList = JSON.parse(localStorage.getItem('myList') || '[]'); // Ürün ID'leri
+let myListShareCode = localStorage.getItem('myListShareCode') || null;
+
 // ===== ICON MAPPING =====
 const iconMap = {
     'tent': 'fa-campground',
@@ -328,7 +332,9 @@ function renderProducts(products) {
     products.forEach(product => {
         const card = document.createElement('div');
         card.className = 'product-card';
-        card.onclick = () => {
+        card.onclick = (e) => {
+            // Listeye ekle butonuna tıklandıysa ürün sayfasına gitme
+            if (e.target.closest('.product-add-list-btn')) return;
             window.location.href = `/product/${product.id}`;
         };
 
@@ -339,6 +345,8 @@ function renderProducts(products) {
         const oldPriceHtml = product.oldPrice
             ? `<span class="product-old-price">${formatPrice(product.oldPrice)}</span>`
             : '';
+
+        const inList = myList.includes(product.id);
 
         card.innerHTML = `
             <div class="product-image-wrapper">
@@ -361,6 +369,11 @@ function renderProducts(products) {
                         ${oldPriceHtml}
                         <span class="product-price">${formatPrice(product.price)}<span class="currency">₺</span></span>
                     </div>
+                    <button class="product-add-list-btn ${inList ? 'in-list' : ''}" 
+                            onclick="toggleListItem(${product.id}, this)" 
+                            title="${inList ? 'Listeden çıkar' : 'Listeye ekle'}">
+                        <i class="fas ${inList ? 'fa-check' : 'fa-plus'}"></i>
+                    </button>
                 </div>
             </div>
         `;
@@ -589,4 +602,258 @@ document.addEventListener('DOMContentLoaded', () => {
             closeSidebar();
         }
     });
+
+    // Liste badge'ini güncelle
+    updateListBadge();
 });
+
+// ===== LİSTE FONKSİYONLARI =====
+
+// Listeye ekle / çıkar
+function toggleListItem(productId, btnElement) {
+    const index = myList.indexOf(productId);
+    if (index > -1) {
+        // Listeden çıkar
+        myList.splice(index, 1);
+        if (btnElement) {
+            btnElement.classList.remove('in-list');
+            btnElement.title = 'Listeye ekle';
+            btnElement.innerHTML = '<i class="fas fa-plus"></i>';
+        }
+        showToast('Ürün listeden çıkarıldı');
+    } else {
+        // Listeye ekle
+        myList.push(productId);
+        if (btnElement) {
+            btnElement.classList.add('in-list');
+            btnElement.title = 'Listeden çıkar';
+            btnElement.innerHTML = '<i class="fas fa-check"></i>';
+        }
+        showToast('Ürün listeye eklendi');
+    }
+    saveListToLocal();
+    updateListBadge();
+    // Panel açıksa güncelle
+    if (document.getElementById('listPanel').classList.contains('open')) {
+        renderListPanel();
+    }
+}
+
+// Local storage'a kaydet
+function saveListToLocal() {
+    localStorage.setItem('myList', JSON.stringify(myList));
+    if (myListShareCode) {
+        localStorage.setItem('myListShareCode', myListShareCode);
+    }
+}
+
+// Badge güncelle
+function updateListBadge() {
+    const badge = document.getElementById('listBadge');
+    if (badge) {
+        if (myList.length > 0) {
+            badge.style.display = 'flex';
+            badge.textContent = myList.length;
+        } else {
+            badge.style.display = 'none';
+        }
+    }
+}
+
+// Panel aç/kapa
+function toggleListPanel() {
+    const panel = document.getElementById('listPanel');
+    const overlay = document.getElementById('listPanelOverlay');
+    if (panel.classList.contains('open')) {
+        closeListPanel();
+    } else {
+        panel.classList.add('open');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        renderListPanel();
+    }
+}
+
+function closeListPanel() {
+    const panel = document.getElementById('listPanel');
+    const overlay = document.getElementById('listPanelOverlay');
+    panel.classList.remove('open');
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Liste panelini doldur
+function renderListPanel() {
+    const body = document.getElementById('listPanelBody');
+    const footer = document.getElementById('listPanelFooter');
+    const shareResult = document.getElementById('listShareResult');
+
+    if (myList.length === 0) {
+        body.innerHTML = `
+            <div class="list-panel-empty">
+                <i class="fas fa-clipboard-list"></i>
+                <p>Listen boş</p>
+                <span>Ürünlerdeki <i class="fas fa-plus" style="font-size:10px;"></i> butonuna tıklayarak ürün ekle</span>
+            </div>
+        `;
+        footer.style.display = 'none';
+        return;
+    }
+
+    footer.style.display = 'block';
+    if (shareResult) shareResult.style.display = 'none';
+
+    // Ürün detaylarını productlardan bul
+    const allKnownProducts = [...allProducts, ...popularProducts];
+    let totalPrice = 0;
+    let cardsHtml = '';
+
+    myList.forEach(productId => {
+        const product = allKnownProducts.find(p => p.id === productId);
+        if (product) {
+            totalPrice += parseFloat(product.price || 0);
+            cardsHtml += `
+                <div class="list-item-card">
+                    <img class="list-item-img" 
+                         src="${product.image || 'https://via.placeholder.com/64x64?text=Ürün'}" 
+                         alt="${product.name}"
+                         onclick="window.location.href='/product/${product.id}'"
+                         onerror="this.src='https://via.placeholder.com/64x64?text=Yok'">
+                    <div class="list-item-info">
+                        <div class="list-item-name" onclick="window.location.href='/product/${product.id}'">${product.name}</div>
+                        <div class="list-item-price">${formatPrice(product.price)}<span class="currency">₺</span></div>
+                    </div>
+                    <button class="list-item-remove" onclick="removeFromList(${product.id})" title="Çıkar">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        } else {
+            // Ürün henüz yüklenmemiş, basit göster
+            cardsHtml += `
+                <div class="list-item-card">
+                    <img class="list-item-img" src="https://via.placeholder.com/64x64?text=..." alt="Yükleniyor">
+                    <div class="list-item-info">
+                        <div class="list-item-name" style="color:var(--text-light)">Ürün #${productId}</div>
+                        <div class="list-item-price" style="color:var(--text-light)">...</div>
+                    </div>
+                    <button class="list-item-remove" onclick="removeFromList(${productId})" title="Çıkar">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        }
+    });
+
+    body.innerHTML = cardsHtml;
+    document.getElementById('listTotalPrice').textContent = formatPrice(totalPrice) + '₺';
+
+    // Share butonunu aktifle 
+    const shareBtn = document.getElementById('listShareBtn');
+    if (shareBtn) shareBtn.disabled = false;
+}
+
+// Listeden ürün çıkar
+function removeFromList(productId) {
+    myList = myList.filter(id => id !== productId);
+    saveListToLocal();
+    updateListBadge();
+    renderListPanel();
+
+    // Ürün kartındaki butonu güncelle
+    const btns = document.querySelectorAll('.product-add-list-btn');
+    btns.forEach(btn => {
+        const onclick = btn.getAttribute('onclick');
+        if (onclick && onclick.includes(`toggleListItem(${productId}`)) {
+            btn.classList.remove('in-list');
+            btn.title = 'Listeye ekle';
+            btn.innerHTML = '<i class="fas fa-plus"></i>';
+        }
+    });
+
+    showToast('Ürün listeden çıkarıldı');
+}
+
+// Listeyi paylaş (API'ye gönder)
+async function shareList() {
+    if (myList.length === 0) return;
+
+    const shareBtn = document.getElementById('listShareBtn');
+    const shareResult = document.getElementById('listShareResult');
+    const listName = document.getElementById('listNameInput').value.trim() || 'Listem';
+
+    shareBtn.disabled = true;
+    shareBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Oluşturuluyor...';
+
+    try {
+        let shareCode = myListShareCode;
+
+        if (shareCode) {
+            // Mevcut listeyi güncelle
+            const res = await fetch(`${API_BASE}/lists/${shareCode}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: listName, items: myList })
+            });
+            const json = await res.json();
+            if (!json.success) {
+                // Eski kod geçersiz, yeni oluştur
+                shareCode = null;
+            }
+        }
+
+        if (!shareCode) {
+            // Yeni liste oluştur
+            const res = await fetch(`${API_BASE}/lists`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: listName, items: myList })
+            });
+            const json = await res.json();
+            if (json.success) {
+                shareCode = json.data.shareCode;
+                myListShareCode = shareCode;
+                localStorage.setItem('myListShareCode', shareCode);
+            } else {
+                throw new Error(json.message);
+            }
+        }
+
+        // Link'i göster
+        const shareUrl = `${window.location.origin}/liste/${shareCode}`;
+        document.getElementById('shareLink').value = shareUrl;
+        shareResult.style.display = 'block';
+        shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Listeyi Güncelle & Paylaş';
+        shareBtn.disabled = false;
+
+        showToast('Paylaşım linki oluşturuldu!');
+    } catch (error) {
+        console.error('Liste paylaşma hatası:', error);
+        shareBtn.innerHTML = '<i class="fas fa-share-alt"></i> Listeyi Paylaş';
+        shareBtn.disabled = false;
+        showToast('Bir hata oluştu, tekrar deneyin');
+    }
+}
+
+// Paylaşım linkini kopyala
+function copyShareLink() {
+    const linkInput = document.getElementById('shareLink');
+    if (!linkInput) return;
+    navigator.clipboard.writeText(linkInput.value).then(() => {
+        showToast('Link kopyalandı!');
+    }).catch(() => {
+        linkInput.select();
+        document.execCommand('copy');
+        showToast('Link kopyalandı!');
+    });
+}
+
+// WhatsApp ile paylaş
+function shareViaWhatsApp() {
+    const linkInput = document.getElementById('shareLink');
+    if (!linkInput || !linkInput.value) return;
+    const listName = document.getElementById('listNameInput').value.trim() || 'Listem';
+    const url = encodeURIComponent(linkInput.value);
+    const text = encodeURIComponent(`${listName} - Ürün listeme göz at!`);
+    window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+}

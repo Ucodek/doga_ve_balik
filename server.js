@@ -7,8 +7,10 @@ const categoryRoutes = require('./routes/categories');
 const productRoutes = require('./routes/products');
 const authRoutes = require('./routes/auth');
 const reviewRoutes = require('./routes/reviews');
+const listRoutes = require('./routes/lists');
 const seedDatabase = require('./database/seed');
 require('./models/Review'); // Review modelini yükle
+require('./models/SharedList'); // SharedList modelini yükle
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -35,6 +37,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/lists', listRoutes);
 
 // Ana sayfa
 app.get('/', (req, res) => {
@@ -54,6 +57,11 @@ app.get('/admin', (req, res) => {
 // Ürün detay sayfası
 app.get('/product/:id', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'product.html'));
+});
+
+// Paylaşılan liste sayfası
+app.get('/liste/:shareCode', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'list.html'));
 });
 
 // Veritabanı senkronizasyonu ve sunucu başlatma

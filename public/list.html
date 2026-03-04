@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paylaşılan Liste - Doğa ve Balık</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/logo.webp">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --bg-main: #f5f6f8;
+            --bg-card: #ffffff;
+            --text-primary: #1a202c;
+            --text-secondary: #718096;
+            --text-light: #a0aec0;
+            --accent-green: #38a169;
+            --accent-green-light: #48bb78;
+            --accent-green-dark: #276749;
+            --accent-red: #e53e3e;
+            --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 16px;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .list-header {
+            background: linear-gradient(135deg, #1e2d24 0%, #162018 100%);
+            color: white;
+            padding: 20px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+        .list-header .logo-link {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            gap: 12px;
+            color: white;
+        }
+        .list-header .logo-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .list-header .logo-text {
+            font-size: 16px;
+            font-weight: 700;
+        }
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+        .header-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(255,255,255,0.1);
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .header-btn:hover { background: rgba(255,255,255,0.2); }
+        .header-btn.primary { background: var(--accent-green); border-color: var(--accent-green); }
+        .header-btn.primary:hover { background: var(--accent-green-dark); }
+
+        /* List Info */
+        .list-info {
+            max-width: 900px;
+            margin: 24px auto;
+            padding: 0 16px;
+        }
+        .list-info-card {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        .list-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-green), var(--accent-green-dark));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            flex-shrink: 0;
+        }
+        .list-meta h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .list-meta p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .list-share-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+        .share-btn {
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .share-btn.whatsapp { background: #25d366; color: white; }
+        .share-btn.whatsapp:hover { background: #128c7e; }
+        .share-btn.copy { background: var(--accent-green); color: white; }
+        .share-btn.copy:hover { background: var(--accent-green-dark); }
+
+        /* Products Grid */
+        .list-products {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 16px 40px;
+        }
+        .products-count {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+        .product-list-item {
+            background: white;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            display: flex;
+            gap: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .product-list-item:hover {
+            box-shadow: var(--shadow-md);
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+        .product-list-img {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: #f7fafc;
+            flex-shrink: 0;
+        }
+        .product-list-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .product-list-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .product-list-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .product-list-footer {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .product-list-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .product-list-price .currency { color: var(--accent-green); font-size: 14px; }
+        .product-list-old-price {
+            font-size: 13px;
+            color: var(--text-light);
+            text-decoration: line-through;
+        }
+        .product-list-rating {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .product-list-rating .star { color: #f6c23e; }
+        .product-list-badge {
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        .empty-state i { font-size: 48px; color: var(--text-light); margin-bottom: 16px; }
+        .empty-state p { font-size: 16px; font-weight: 500; margin-bottom: 8px; }
+        .empty-state span { font-size: 13px; color: var(--text-light); }
+
+        /* Not Found */
+        .not-found {
+            text-align: center;
+            padding: 80px 20px;
+        }
+        .not-found i { font-size: 64px; color: var(--text-light); margin-bottom: 20px; display: block; }
+        .not-found h2 { font-size: 22px; color: var(--text-primary); margin-bottom: 8px; }
+        .not-found p { font-size: 14px; color: var(--text-secondary); margin-bottom: 20px; }
+        .not-found a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            background: var(--accent-green);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        .loading i { font-size: 32px; margin-bottom: 12px; }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: #1a202c;
+            color: white;
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1000;
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+            box-shadow: var(--shadow-lg);
+        }
+        .toast.show { transform: translateY(0); opacity: 1; }
+        .toast .toast-icon { color: var(--accent-green); }
+
+        /* Total Price */
+        .total-price-bar {
+            background: white;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .total-label { font-size: 14px; color: var(--text-secondary); font-weight: 500; }
+        .total-value { font-size: 22px; font-weight: 700; color: var(--accent-green-dark); }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .list-header { padding: 14px 16px; }
+            .list-header .logo-text { display: none; }
+            .list-info-card { flex-direction: column; gap: 12px; text-align: center; padding: 20px 16px; }
+            .list-share-actions { margin-left: 0; }
+            .list-meta h1 { font-size: 18px; }
+            .product-list-item { padding: 12px; gap: 12px; }
+            .product-list-img { width: 80px; height: 80px; }
+            .product-list-name { font-size: 14px; }
+            .product-list-price { font-size: 16px; }
+            .total-price-bar { padding: 12px 16px; }
+            .total-value { font-size: 18px; }
+            .header-btn span { display: none; }
+        }
+        @media (max-width: 480px) {
+            .share-btn span { display: none; }
+            .share-btn { padding: 10px 12px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="list-header">
+        <a href="/" class="logo-link">
+            <img src="/assets/logo.webp" alt="Logo" class="logo-img">
+            <span class="logo-text">Doğa ve Balık</span>
+        </a>
+        <div class="header-actions">
+            <a href="/" class="header-btn">
+                <i class="fas fa-home"></i>
+                <span>Ana Sayfa</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Content -->
+    <div id="content">
+        <div class="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>Liste yükleniyor...</p>
+        </div>
+    </div>
+
+    <script>
+    const API_BASE = '/api';
+
+    // ShareCode'u URL'den al
+    function getShareCode() {
+        const parts = window.location.pathname.split('/');
+        return parts[parts.length - 1] || parts[parts.length - 2];
+    }
+
+    // Sayfa yüklendiğinde
+    document.addEventListener('DOMContentLoaded', async () => {
+        const shareCode = getShareCode();
+        if (!shareCode) {
+            showNotFound();
+            return;
+        }
+        await loadList(shareCode);
+    });
+
+    async function loadList(shareCode) {
+        try {
+            const res = await fetch(`${API_BASE}/lists/${shareCode}`);
+            const json = await res.json();
+
+            if (!json.success) {
+                showNotFound();
+                return;
+            }
+
+            renderList(json.data);
+            document.title = `${json.data.name} - Doğa ve Balık`;
+        } catch (error) {
+            showNotFound();
+        }
+    }
+
+    function renderList(data) {
+        const content = document.getElementById('content');
+        const products = data.products || [];
+        const totalPrice = products.reduce((sum, p) => sum + parseFloat(p.price || 0), 0);
+
+        const shareUrl = window.location.href;
+
+        content.innerHTML = `
+            <div class="list-info">
+                <div class="list-info-card">
+                    <div class="list-icon">
+                        <i class="fas fa-list-ul"></i>
+                    </div>
+                    <div class="list-meta">
+                        <h1>${escapeHtml(data.name)}</h1>
+                        <p>${products.length} ürün · ${formatDate(data.createdAt)}</p>
+                    </div>
+                    <div class="list-share-actions">
+                        <button class="share-btn copy" onclick="copyLink()">
+                            <i class="fas fa-link"></i>
+                            <span>Linki Kopyala</span>
+                        </button>
+                        <button class="share-btn whatsapp" onclick="shareWhatsApp()">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="list-products">
+                ${products.length > 0 ? `
+                    <div class="total-price-bar">
+                        <span class="total-label">Toplam Tutar (${products.length} ürün)</span>
+                        <span class="total-value">${formatPrice(totalPrice)}₺</span>
+                    </div>
+                    <div class="products-count">${products.length} ürün listeleniyor</div>
+                    ${products.map(p => renderProductItem(p)).join('')}
+                ` : `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <p>Bu listede henüz ürün yok</p>
+                        <span>Liste sahibi henüz ürün eklememiş</span>
+                    </div>
+                `}
+            </div>
+        `;
+    }
+
+    function renderProductItem(product) {
+        const badgeHtml = product.badge
+            ? `<span class="product-list-badge" style="background:${product.badgeColor || '#e53e3e'}">${product.badge}</span>`
+            : '';
+        const oldPriceHtml = product.oldPrice
+            ? `<span class="product-list-old-price">${formatPrice(product.oldPrice)}₺</span>`
+            : '';
+
+        return `
+            <a href="/product/${product.id}" class="product-list-item">
+                <img class="product-list-img" 
+                     src="${product.image || 'https://via.placeholder.com/100x100?text=Ürün'}" 
+                     alt="${escapeHtml(product.name)}"
+                     onerror="this.src='https://via.placeholder.com/100x100?text=Görsel+Yok'">
+                <div class="product-list-info">
+                    <div class="product-list-name">${escapeHtml(product.name)} ${badgeHtml}</div>
+                    ${product.description ? `<div class="product-list-desc">${escapeHtml(product.description)}</div>` : ''}
+                    <div class="product-list-footer">
+                        <span class="product-list-price">${formatPrice(product.price)}<span class="currency">₺</span></span>
+                        ${oldPriceHtml}
+                        <span class="product-list-rating">
+                            <i class="fas fa-star star"></i>
+                            ${product.rating || 0} (${product.reviewCount || 0})
+                        </span>
+                    </div>
+                </div>
+            </a>
+        `;
+    }
+
+    function showNotFound() {
+        const content = document.getElementById('content');
+        content.innerHTML = `
+            <div class="not-found">
+                <i class="fas fa-search"></i>
+                <h2>Liste Bulunamadı</h2>
+                <p>Bu paylaşım linki geçersiz veya liste silinmiş olabilir.</p>
+                <a href="/"><i class="fas fa-home"></i> Ana Sayfaya Dön</a>
+            </div>
+        `;
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            showToast('Link kopyalandı!');
+        }).catch(() => {
+            // Fallback
+            const input = document.createElement('input');
+            input.value = window.location.href;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            showToast('Link kopyalandı!');
+        });
+    }
+
+    function shareWhatsApp() {
+        const url = encodeURIComponent(window.location.href);
+        const text = encodeURIComponent(`${document.title} - Ürün listeme göz at!`);
+        window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+    }
+
+    function formatPrice(price) {
+        return new Intl.NumberFormat('tr-TR', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        }).format(price);
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function showToast(message) {
+        const existing = document.querySelector('.toast');
+        if (existing) existing.remove();
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `<i class="fas fa-check-circle toast-icon"></i><span>${message}</span>`;
+        document.body.appendChild(toast);
+        requestAnimationFrame(() => toast.classList.add('show'));
+        setTimeout(() => {
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+    </script>
+</body>
+</html>
