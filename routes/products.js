@@ -5,8 +5,7 @@ const path = require('path');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const fs = require("fs");
-let sharp;
-try { sharp = require("sharp"); } catch(e) { sharp = null; }
+const { compressImages, compressVideo } = require('../utils/compress');
 
 // Multer konfigürasyonu (görsel yükleme)
 const storage = multer.diskStorage({
@@ -120,16 +119,22 @@ router.post('/', uploadFields, async (req, res) => {
             return res.status(400).json({ success: false, message: 'Geçersiz kategori ID' });
         }
 
-        // Çoklu görsel işleme
+        // Çoklu görsel işleme + sıkıştırma
         let imagePaths = [];
         if (req.files && req.files.images && req.files.images.length > 0) {
+            const fullPaths = req.files.images.map(f => path.join(__dirname, '..', 'uploads', f.filename));
+            await compressImages(fullPaths);
             imagePaths = req.files.images.map(f => `/uploads/${f.filename}`);
         }
 
-        // Video işleme
+        // Video işleme + sıkıştırma
         let videoPath = null;
         if (req.files && req.files.video && req.files.video.length > 0) {
-            videoPath = `/uploads/${req.files.video[0].filename}`;
+            const videoFile = req.files.video[0];
+            const videoFullPath = path.join(__dirname, '..', 'uploads', videoFile.filename);
+            const compressedPath = await compressVideo(videoFullPath);
+            // Sıkıştırma sonrası dosya adı değişmiş olabilir (.mp4 dönüşümü)
+            videoPath = `/uploads/${path.basename(compressedPath)}`;
         }
 
         const product = await Product.create({
@@ -211,8 +216,10 @@ router.put('/:id', uploadFields, async (req, res) => {
             } catch(e) { /* ignore */ }
         }
 
-        // Yeni yüklenen görselleri ekle
+        // Yeni yüklenen görselleri sıkıştır ve ekle
         if (req.files && req.files.images && req.files.images.length > 0) {
+            const fullPaths = req.files.images.map(f => path.join(__dirname, '..', 'uploads', f.filename));
+            await compressImages(fullPaths);
             const newPaths = req.files.images.map(f => `/uploads/${f.filename}`);
             currentImages = [...currentImages, ...newPaths];
         }
@@ -220,7 +227,7 @@ router.put('/:id', uploadFields, async (req, res) => {
         updateData.images = currentImages;
         updateData.image = currentImages.length > 0 ? currentImages[0] : null;
 
-        // Video işleme
+        // Video işleme + sıkıştırma
         if (req.files && req.files.video && req.files.video.length > 0) {
             // Eski videoyu sil
             if (product.video) {
@@ -229,7 +236,10 @@ router.put('/:id', uploadFields, async (req, res) => {
                     fs.unlinkSync(oldVideoPath);
                 }
             }
-            updateData.video = `/uploads/${req.files.video[0].filename}`;
+            const videoFile = req.files.video[0];
+            const videoFullPath = path.join(__dirname, '..', 'uploads', videoFile.filename);
+            const compressedPath = await compressVideo(videoFullPath);
+            updateData.video = `/uploads/${path.basename(compressedPath)}`;
         }
 
         // Video silme isteği
