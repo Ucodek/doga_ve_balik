@@ -332,11 +332,6 @@ function renderProducts(products) {
     products.forEach(product => {
         const card = document.createElement('div');
         card.className = 'product-card';
-        card.onclick = (e) => {
-            // Listeye ekle butonuna tıklandıysa ürün sayfasına gitme
-            if (e.target.closest('.product-add-list-btn')) return;
-            window.location.href = `/product/${product.id}`;
-        };
 
         const badgeHtml = product.badge
             ? `<span class="product-badge" style="background: ${product.badgeColor || '#e53e3e'}">${product.badge}</span>`
@@ -370,13 +365,26 @@ function renderProducts(products) {
                         <span class="product-price">${formatPrice(product.price)}<span class="currency">₺</span></span>
                     </div>
                     <button class="product-add-list-btn ${inList ? 'in-list' : ''}" 
-                            onclick="toggleListItem(${product.id}, this)" 
+                            data-product-id="${product.id}"
                             title="${inList ? 'Listeden çıkar' : 'Listeye ekle'}">
                         <i class="fas ${inList ? 'fa-check' : 'fa-plus'}"></i>
                     </button>
                 </div>
             </div>
         `;
+
+        // Listeye ekle butonuna tıklama (event delegation ile)
+        const listBtn = card.querySelector('.product-add-list-btn');
+        listBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            toggleListItem(product.id, this);
+        });
+
+        // Kart tıklama - ürün sayfasına git
+        card.addEventListener('click', function() {
+            window.location.href = `/product/${product.id}`;
+        });
 
         grid.appendChild(card);
     });
