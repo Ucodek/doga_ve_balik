@@ -895,5 +895,6 @@ function shareViaWhatsApp() {
     const listName = document.getElementById('listNameInput').value.trim() || 'Listem';
     const url = encodeURIComponent(linkInput.value);
     const text = encodeURIComponent(`${listName} - Ürün listeme göz at!`);
-    window.open(`https://wa.me/?text=${text}%20${url}`, '_blank');
+    const whatsappNumber = '905304064702'; // 0530 406 47 02
+    window.open(`https://wa.me/${whatsappNumber}?text=${text}%20${url}`, '_blank');
 }
