@@ -2,7 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require('../models/User');
-const { authMiddleware, JWT_SECRET } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware, JWT_SECRET } = require('../middleware/auth');
 const { sendResetCode } = require('../utils/mailer');
 
 // POST /api/auth/register - Kayıt ol
@@ -107,6 +107,20 @@ router.get('/me', authMiddleware, async (req, res) => {
             return res.status(404).json({ success: false, message: 'Kullanıcı bulunamadı' });
         }
         res.json({ success: true, data: user });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+
+// GET /api/auth/users - Admin için kullanıcı listesi
+router.get('/users', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const users = await User.findAll({
+            attributes: ['id', 'fullName', 'email', 'role', 'createdAt'],
+            order: [['createdAt', 'DESC']]
+        });
+
+        res.json({ success: true, data: users });
     } catch (error) {
         res.status(500).json({ success: false, message: error.message });
     }

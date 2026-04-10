@@ -45,6 +45,9 @@
                 <a class="admin-nav-item" data-tab="reviews" onclick="switchAdminTab('reviews', this)">
                     <i class="fas fa-comments"></i> Yorumlar
                 </a>
+                <a class="admin-nav-item" data-tab="users" onclick="switchAdminTab('users', this)">
+                    <i class="fas fa-users"></i> Kullanıcılar
+                </a>
             </nav>
         </aside>
 
@@ -134,6 +137,28 @@
                     <p class="admin-section-desc">Popüler olarak işaretlenen ürünler, ana sayfada hero bölümünde gösterilir.</p>
                 </div>
                 <div class="popular-grid" id="popularGrid">
+                </div>
+            </div>
+
+            <!-- KULLANICILAR TAB -->
+            <div class="admin-tab" id="tabUsers">
+                <div class="admin-section-header">
+                    <h2><i class="fas fa-users"></i> Kayıtlı Kullanıcılar</h2>
+                </div>
+                <div class="admin-table-wrapper">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Ad Soyad</th>
+                                <th>E-posta</th>
+                                <th>Rol</th>
+                                <th>Kayıt Tarihi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
 

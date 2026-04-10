@@ -62,6 +62,9 @@ function switchAdminTab(tab, el) {
     } else if (tab === 'reviews') {
         document.getElementById('tabReviews').classList.add('active');
         loadAdminReviews();
+    } else if (tab === 'users') {
+        document.getElementById('tabUsers').classList.add('active');
+        loadAdminUsers();
     }
 }
 
@@ -721,6 +724,52 @@ async function deleteReview(id) {
             alert(json.message);
         }
     } catch (e) { console.error(e); }
+}
+
+// ===== KULLANICILAR =====
+async function loadAdminUsers() {
+    try {
+        const res = await fetch(`${API_BASE}/auth/users`, {
+            headers: authHeaders()
+        });
+        const json = await res.json();
+        if (json.success) {
+            renderUsersTable(json.data);
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}
+
+function renderUsersTable(users) {
+    const tbody = document.getElementById('usersTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!users || users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#a0aec0;padding:40px;">Henüz kayıtlı kullanıcı yok</td></tr>';
+        return;
+    }
+
+    users.forEach(user => {
+        const createdAt = new Date(user.createdAt).toLocaleString('tr-TR', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${user.id}</td>
+            <td><strong>${user.fullName || '—'}</strong></td>
+            <td>${user.email || '—'}</td>
+            <td><span class="table-badge ${user.role === 'admin' ? 'badge-active' : 'badge-inactive'}">${user.role === 'admin' ? 'Admin' : 'Kullanıcı'}</span></td>
+            <td>${createdAt}</td>
+        `;
+        tbody.appendChild(tr);
+    });
 }
 
 // ===== YARDIMCI =====
