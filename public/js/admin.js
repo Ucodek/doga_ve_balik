@@ -4,6 +4,7 @@ let token = localStorage.getItem('token');
 let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 let adminCategories = [];
 let adminProducts = [];
+let adminTotalProductCount = 0;
 let adminProductFilters = {
     search: '',
     categoryId: ''
@@ -265,9 +266,24 @@ async function loadAdminProducts() {
         const json = await res.json();
         if (json.success) {
             adminProducts = json.data;
+            adminTotalProductCount = json.total || json.data.length;
+            updateProductsSummary();
             renderProductsTable(json.data);
         }
     } catch (e) { console.error(e); }
+}
+
+function updateProductsSummary() {
+    const summary = document.getElementById('adminProductsSummary');
+    if (!summary) return;
+
+    const hasFilters = !!(adminProductFilters.search || adminProductFilters.categoryId);
+    if (hasFilters) {
+        summary.textContent = `Eşleşen ürün çeşidi: ${adminProducts.length}`;
+        return;
+    }
+
+    summary.textContent = `Toplam ürün çeşidi: ${adminTotalProductCount}`;
 }
 
 function renderProductsTable(products) {
@@ -336,6 +352,7 @@ function applyProductFilters() {
 
     adminProductFilters.search = searchInput ? searchInput.value.trim() : '';
     adminProductFilters.categoryId = categoryFilter ? categoryFilter.value : '';
+    updateProductsSummary();
     loadAdminProducts();
 }
 
@@ -354,6 +371,7 @@ function resetProductFilters() {
         categoryFilter.value = '';
     }
 
+    updateProductsSummary();
     loadAdminProducts();
 }
 // Ürün Modal

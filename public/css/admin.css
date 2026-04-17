@@ -241,6 +241,19 @@ body {
     background: #e2e8f0;
 }
 
+.admin-products-summary {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-green-dark);
+    background: #f0faf0;
+    border: 1px solid #c6f6d5;
+    border-radius: var(--radius-sm);
+    padding: 8px 12px;
+    display: inline-flex;
+    align-items: center;
+}
+
 .admin-section-desc {
     font-size: 13px;
     color: var(--text-secondary);
@@ -834,6 +847,11 @@ textarea.form-input {
 
     .admin-filter-btn {
         flex: 1;
+    }
+
+    .admin-products-summary {
+        width: 100%;
+        justify-content: center;
     }
 
     .admin-section-header h2 {

@@ -438,6 +438,40 @@ function showFeatured(element) {
     loadProducts({ featured: true });
 }
 
+function openPopularProducts(e) {
+    if (e) e.preventDefault();
+
+    // Kategori seçimlerini temizle
+    document.querySelectorAll('.category-link').forEach(el => el.classList.remove('active', 'expanded'));
+    document.querySelectorAll('.sub-category-link').forEach(el => {
+        el.style.background = '';
+        el.style.color = '';
+    });
+    document.querySelectorAll('.sub-category-list').forEach(el => el.classList.remove('open'));
+
+    // Aramayı sıfırla
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+        searchInput.value = '';
+    }
+
+    // Session filtrelerini temizle
+    sessionStorage.removeItem('selectedCategoryId');
+    sessionStorage.removeItem('productsScrollTop');
+
+    const titleEl = document.getElementById('sectionTitle');
+    const subtitleEl = document.getElementById('sectionSubtitle');
+    if (titleEl) titleEl.textContent = 'Popüler Ürünler';
+    if (subtitleEl) subtitleEl.textContent = 'Kullanıcıların en çok tercih ettiği ürünler';
+
+    loadProducts({ popular: true });
+
+    const featuredSection = document.querySelector('.featured-section');
+    if (featuredSection) {
+        featuredSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
 // Section başlığını kategori adına göre güncelle
 function updateSectionTitle(categoryId) {
     const titleEl = document.getElementById('sectionTitle');
