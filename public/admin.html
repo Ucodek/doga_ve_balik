@@ -62,6 +62,24 @@
                         <i class="fas fa-plus"></i> Yeni Ürün
                     </button>
                 </div>
+                <div class="admin-section-toolbar">
+                    <div class="admin-filter-controls">
+                        <div class="admin-filter-field">
+                            <label for="pProductSearch">Ürün ara</label>
+                            <input type="text" class="form-input admin-filter-input" id="pProductSearch" placeholder="Ürün adını yazın">
+                        </div>
+                        <div class="admin-filter-field">
+                            <label for="pCategoryFilter">Kategoriye göre filtrele</label>
+                            <select class="form-input admin-filter-input" id="pCategoryFilter">
+                                <option value="">Tüm Kategoriler</option>
+                            </select>
+                        </div>
+                        <div class="admin-filter-actions">
+                            <button type="button" class="admin-filter-btn" onclick="applyProductFilters()">Filtrele</button>
+                            <button type="button" class="admin-filter-btn secondary" onclick="resetProductFilters()">Temizle</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="admin-table-wrapper">
                     <table class="admin-table">
                         <thead>

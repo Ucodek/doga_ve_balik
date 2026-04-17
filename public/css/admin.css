@@ -177,6 +177,70 @@ body {
     color: var(--accent-green);
 }
 
+.admin-section-toolbar {
+    margin-bottom: 16px;
+}
+
+.admin-filter-controls {
+    display: flex;
+    align-items: flex-end;
+    gap: 14px;
+    flex-wrap: wrap;
+    background: white;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 14px;
+}
+
+.admin-filter-field {
+    min-width: 220px;
+    flex: 1;
+}
+
+.admin-filter-field label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.admin-filter-input {
+    min-height: 40px;
+}
+
+.admin-filter-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.admin-filter-btn {
+    height: 40px;
+    padding: 0 16px;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--accent-green);
+    color: white;
+    transition: background 0.2s ease, opacity 0.2s ease;
+}
+
+.admin-filter-btn:hover {
+    background: var(--accent-green-dark);
+}
+
+.admin-filter-btn.secondary {
+    background: #edf2f7;
+    color: var(--text-primary);
+}
+
+.admin-filter-btn.secondary:hover {
+    background: #e2e8f0;
+}
+
 .admin-section-desc {
     font-size: 13px;
     color: var(--text-secondary);
@@ -298,6 +362,13 @@ body {
 
 .btn-delete:hover {
     background: #fed7d7;
+}
+
+.admin-empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 14px;
+    padding: 24px 16px !important;
 }
 
 /* POPULAR GRID */
@@ -751,6 +822,18 @@ textarea.form-input {
     /* Main */
     .admin-main {
         padding: 16px;
+    }
+
+    .admin-filter-field {
+        min-width: 100%;
+    }
+
+    .admin-filter-actions {
+        width: 100%;
+    }
+
+    .admin-filter-btn {
+        flex: 1;
     }
 
     .admin-section-header h2 {

@@ -4,6 +4,10 @@ let token = localStorage.getItem('token');
 let currentUser = JSON.parse(localStorage.getItem('user') || 'null');
 let adminCategories = [];
 let adminProducts = [];
+let adminProductFilters = {
+    search: '',
+    categoryId: ''
+};
 let existingImages = []; // Düzenleme sırasında mevcut görseller
 let removedImages = []; // Silinecek görseller
 let newImageFiles = []; // Yeni seçilen dosyalar
@@ -20,6 +24,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('adminUserName').textContent = currentUser.fullName;
 
+    setupProductFilters();
     loadAdminCategories();
     loadAdminProducts();
 });
@@ -83,6 +88,21 @@ async function loadAdminCategories() {
     }
 }
 
+function buildCategoryOptions(categories, placeholder) {
+    let html = `<option value="">${placeholder}</option>`;
+
+    categories.forEach(cat => {
+        html += `<option value="${cat.id}">${cat.name}</option>`;
+        if (cat.subCategories) {
+            cat.subCategories.forEach(sub => {
+                html += `<option value="${sub.id}">  ↳ ${sub.name}</option>`;
+            });
+        }
+    });
+
+    return html;
+}
+
 function renderCategoriesTable(categories) {
     const tbody = document.getElementById('categoriesTableBody');
     if (!tbody) return;
@@ -117,18 +137,19 @@ function renderCategoriesTable(categories) {
 }
 
 function populateCategorySelects(categories) {
+    const categoryOptions = buildCategoryOptions(categories, 'Seçiniz');
+
     // Ürün formu kategori seçimi
     const pSelect = document.getElementById('pCategory');
     if (pSelect) {
-        pSelect.innerHTML = '<option value="">Seçiniz</option>';
-        categories.forEach(cat => {
-            pSelect.innerHTML += `<option value="${cat.id}">${cat.name}</option>`;
-            if (cat.subCategories) {
-                cat.subCategories.forEach(sub => {
-                    pSelect.innerHTML += `<option value="${sub.id}">  ↳ ${sub.name}</option>`;
-                });
-            }
-        });
+        pSelect.innerHTML = categoryOptions;
+    }
+
+    const filterSelect = document.getElementById('pCategoryFilter');
+    if (filterSelect) {
+        const selectedCategory = filterSelect.value;
+        filterSelect.innerHTML = buildCategoryOptions(categories, 'Tüm Kategoriler');
+        filterSelect.value = selectedCategory;
     }
 
     // Kategori formu üst kategori seçimi
@@ -227,7 +248,20 @@ async function deleteCategory(id) {
 // ===== ÜRÜNLER =====
 async function loadAdminProducts() {
     try {
-        const res = await fetch(`${API_BASE}/products?limit=100`);
+        const params = new URLSearchParams({
+            all: 'true',
+            includeInactive: 'true'
+        });
+
+        if (adminProductFilters.search) {
+            params.set('search', adminProductFilters.search);
+        }
+
+        if (adminProductFilters.categoryId) {
+            params.set('categoryId', adminProductFilters.categoryId);
+        }
+
+        const res = await fetch(`${API_BASE}/products?${params.toString()}`);
         const json = await res.json();
         if (json.success) {
             adminProducts = json.data;
@@ -240,6 +274,15 @@ function renderProductsTable(products) {
     const tbody = document.getElementById('productsTableBody');
     if (!tbody) return;
     tbody.innerHTML = '';
+
+    if (!products.length) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="7" class="admin-empty-state">Eşleşen ürün bulunamadı.</td>
+            </tr>
+        `;
+        return;
+    }
 
     products.forEach(p => {
         const tr = document.createElement('tr');
@@ -266,6 +309,53 @@ function renderProductsTable(products) {
     });
 }
 
+
+function setupProductFilters() {
+    const searchInput = document.getElementById('pProductSearch');
+    const categoryFilter = document.getElementById('pCategoryFilter');
+
+    if (searchInput) {
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                applyProductFilters();
+            }
+        });
+    }
+
+    if (categoryFilter) {
+        categoryFilter.addEventListener('change', () => {
+            applyProductFilters();
+        });
+    }
+}
+
+function applyProductFilters() {
+    const searchInput = document.getElementById('pProductSearch');
+    const categoryFilter = document.getElementById('pCategoryFilter');
+
+    adminProductFilters.search = searchInput ? searchInput.value.trim() : '';
+    adminProductFilters.categoryId = categoryFilter ? categoryFilter.value : '';
+    loadAdminProducts();
+}
+
+function resetProductFilters() {
+    const searchInput = document.getElementById('pProductSearch');
+    const categoryFilter = document.getElementById('pCategoryFilter');
+
+    adminProductFilters.search = '';
+    adminProductFilters.categoryId = '';
+
+    if (searchInput) {
+        searchInput.value = '';
+    }
+
+    if (categoryFilter) {
+        categoryFilter.value = '';
+    }
+
+    loadAdminProducts();
+}
 // Ürün Modal
 function openProductModal(product = null) {
     document.getElementById('productModal').classList.add('open');

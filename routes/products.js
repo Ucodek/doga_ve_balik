@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const multer = require('multer');
 const path = require('path');
+const { Op } = require('sequelize');
 const Product = require('../models/Product');
 const Category = require('../models/Category');
 const fs = require("fs");
@@ -43,29 +44,45 @@ const uploadFields = upload.fields([
 // GET /api/products - Tüm ürünleri getir (filtreleme destekli)
 router.get('/', async (req, res) => {
     try {
-        const { categoryId, featured, popular, search, limit, offset } = req.query;
+        const { categoryId, featured, popular, search, limit, offset, all, includeInactive } = req.query;
 
-        const where = { isActive: true };
+        const where = {};
+        if (includeInactive !== 'true' && all !== 'true') {
+            where.isActive = true;
+        }
         if (categoryId) where.categoryId = categoryId;
         if (featured === 'true') where.isFeatured = true;
         if (popular === 'true') where.isPopular = true;
 
         if (search) {
-            const { Op } = require('sequelize');
             where.name = { [Op.like]: `%${search}%` };
         }
 
-        const products = await Product.findAndCountAll({
+        const queryOptions = {
             where,
             include: [{
                 model: Category,
                 as: 'category',
                 attributes: ['id', 'name']
             }],
-            order: [['createdAt', 'DESC']],
-            limit: parseInt(limit) || 20,
-            offset: parseInt(offset) || 0
-        });
+            order: [['createdAt', 'DESC']]
+        };
+
+        if (all === 'true') {
+            const products = await Product.findAll(queryOptions);
+
+            return res.json({
+                success: true,
+                data: products,
+                total: products.length,
+                page: 1
+            });
+        }
+
+        queryOptions.limit = parseInt(limit) || 20;
+        queryOptions.offset = parseInt(offset) || 0;
+
+        const products = await Product.findAndCountAll(queryOptions);
 
         res.json({
             success: true,
