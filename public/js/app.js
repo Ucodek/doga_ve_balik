@@ -23,8 +23,19 @@ const iconMap = {
     'knife': 'fa-scissors'
 };
 
+function hasValidSession() {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    return !!(token && user);
+}
+
 // ===== SAYFA YÜKLENDIĞINDE =====
 document.addEventListener('DOMContentLoaded', async () => {
+    if (!hasValidSession()) {
+        window.location.replace('/login');
+        return;
+    }
+
     renderUserArea();
     await loadCategories();
 

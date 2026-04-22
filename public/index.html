@@ -12,6 +12,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
+    <script>
+        (function enforceLoginOnHome() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            if (!token || !user) {
+                window.location.replace('/login');
+            }
+        })();
+    </script>
     <div class="layout">
         <!-- Sol Sidebar -->
         <aside class="sidebar" id="sidebar">
