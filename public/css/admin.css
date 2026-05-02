@@ -870,13 +870,16 @@ textarea.form-input {
     }
 
     .admin-table {
-        min-width: 600px;
+        min-width: 100%;
+        width: 100%;
     }
 
     .admin-table th,
     .admin-table td {
-        padding: 10px 12px;
-        font-size: 13px;
+        padding: 12px 8px;
+        font-size: 12px;
+        white-space: normal;
+        word-break: break-word;
     }
 
     .form-row {
@@ -923,5 +926,15 @@ textarea.form-input {
         font-size: 12px;
         padding: 7px 10px;
         gap: 6px;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+
+    .admin-table-wrapper {
+        -webkit-overflow-scrolling: touch;
     }
 }
