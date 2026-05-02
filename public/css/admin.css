@@ -291,6 +291,7 @@ body {
 .admin-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: auto;
 }
 
 .admin-table th {
@@ -310,6 +311,8 @@ body {
     font-size: 14px;
     border-bottom: 1px solid #f0f0f0;
     vertical-align: middle;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .admin-table tbody tr:hover {
@@ -866,20 +869,33 @@ textarea.form-input {
     /* Table scroll */
     .admin-table-wrapper {
         overflow-x: auto;
+        overflow-y: visible;
         -webkit-overflow-scrolling: touch;
+        width: 100%;
     }
 
     .admin-table {
+        width: auto;
         min-width: 100%;
-        width: 100%;
     }
 
     .admin-table th,
     .admin-table td {
-        padding: 12px 8px;
-        font-size: 12px;
+        padding: 10px 6px;
+        font-size: 11px;
         white-space: normal;
         word-break: break-word;
+        max-width: 100px;
+    }
+
+    .admin-table th {
+        min-width: 70px;
+    }
+
+    .admin-table td {
+        overflow: visible;
+        text-overflow: clip;
+        min-width: 70px;
     }
 
     .form-row {
